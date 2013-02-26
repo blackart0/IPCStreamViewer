@@ -2,7 +2,7 @@
 
 [General Info]
 Version=1
-LastClass=CFocusAssit
+LastClass=CPreview
 LastTemplate=CDialog
 NewFileInclude1=#include "stdafx.h"
 NewFileInclude2=#include "IPCStreamView.h"
@@ -15,8 +15,8 @@ Class3=CAboutDlg
 ResourceCount=5
 Resource1=IDD_DIALOG_FOCUS_ASSIST
 Resource2=IDR_MAINFRAME
-Resource3=IDD_IPCSTREAMVIEW_DIALOG
-Resource4=IDD_ABOUTBOX
+Resource3=IDD_ABOUTBOX
+Resource4=IDD_IPCSTREAMVIEW_DIALOG
 Class4=CFocusAssit
 Class5=CPreview
 Resource5=IDD_DIALOG_PREVIEW
@@ -26,7 +26,7 @@ Type=0
 HeaderFile=IPCStreamView.h
 ImplementationFile=IPCStreamView.cpp
 Filter=N
-LastObject=IDC_TAB_MAIN
+LastObject=CIPCStreamViewApp
 
 [CLS:CIPCStreamViewDlg]
 Type=0
@@ -35,7 +35,7 @@ ImplementationFile=IPCStreamViewDlg.cpp
 Filter=D
 BaseClass=CDialog
 VirtualFilter=dWC
-LastObject=IDC_TAB_MAIN
+LastObject=CIPCStreamViewDlg
 
 [CLS:CAboutDlg]
 Type=0
@@ -82,7 +82,7 @@ HeaderFile=FocusAssit.h
 ImplementationFile=FocusAssit.cpp
 BaseClass=CDialog
 Filter=D
-LastObject=IDC_LIST_TIPS
+LastObject=CFocusAssit
 VirtualFilter=dWC
 
 [CLS:CPreview]
