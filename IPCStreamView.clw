@@ -13,10 +13,10 @@ Class2=CIPCStreamViewDlg
 Class3=CAboutDlg
 
 ResourceCount=5
-Resource1=IDD_ABOUTBOX
+Resource1=IDD_DIALOG_FOCUS_ASSIST
 Resource2=IDR_MAINFRAME
-Resource3=IDD_DIALOG_FOCUS_ASSIST
-Resource4=IDD_IPCSTREAMVIEW_DIALOG
+Resource3=IDD_IPCSTREAMVIEW_DIALOG
+Resource4=IDD_ABOUTBOX
 Class4=CFocusAssit
 Class5=CPreview
 Resource5=IDD_DIALOG_PREVIEW
@@ -62,7 +62,7 @@ Control1=IDC_TAB_MAIN,SysTabControl32,1342177280
 [DLG:IDD_DIALOG_FOCUS_ASSIST]
 Type=1
 Class=CFocusAssit
-ControlCount=8
+ControlCount=7
 Control1=IDC_STATIC_VIEW_AREA,button,1342210055
 Control2=IDC_STATIC_TIPS,button,1342210055
 Control3=IDC_STATIC_FOCUS_ASSIST,button,1342210055
@@ -70,7 +70,6 @@ Control4=IDC_LIST_TIPS,listbox,1352728835
 Control5=IDC_BUTTON_SAMPLE,button,1342242816
 Control6=IDC_BUTTON_START_FOCUS,button,1342242816
 Control7=IDC_BUTTON_STOP_FOCUS2,button,1342242816
-Control8=IDC_MSCHART1,{3A2B370C-BA0A-11D1-B137-0000F8753F5D},1342242816
 
 [DLG:IDD_DIALOG_PREVIEW]
 Type=1
@@ -83,7 +82,7 @@ HeaderFile=FocusAssit.h
 ImplementationFile=FocusAssit.cpp
 BaseClass=CDialog
 Filter=D
-LastObject=CFocusAssit
+LastObject=IDC_LIST_TIPS
 VirtualFilter=dWC
 
 [CLS:CPreview]

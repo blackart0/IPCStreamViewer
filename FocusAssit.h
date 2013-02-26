@@ -1,5 +1,4 @@
 //{{AFX_INCLUDES()
-#include "mschart.h"
 //}}AFX_INCLUDES
 #if !defined(AFX_FOCUSASSIT_H__F927382B_9FA1_4C54_B922_574169AC0AC1__INCLUDED_)
 #define AFX_FOCUSASSIT_H__F927382B_9FA1_4C54_B922_574169AC0AC1__INCLUDED_
@@ -30,7 +29,6 @@ protected:
 	//{{AFX_DATA(CFocusAssit)
 	enum { IDD = IDD_DIALOG_FOCUS_ASSIST };
 	CListBox	m_tips;
-	CMSChart	m_chart;
 	//}}AFX_DATA
 
 

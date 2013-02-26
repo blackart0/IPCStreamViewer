@@ -17,7 +17,6 @@
 #define IDC_BUTTON_START_FOCUS          1006
 #define IDC_BUTTON_STOP_FOCUS2          1007
 #define IDC_TAB_MAIN                    1007
-#define IDC_MSCHART1                    1012
 
 // Next default values for new objects
 // 
