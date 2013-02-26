@@ -1,0 +1,32 @@
+Microsoft Developer Studio Workspace File, Format Version 6.00
+# WARNING: DO NOT EDIT OR DELETE THIS WORKSPACE FILE!
+
+###############################################################################
+
+Project: "IPCStreamView"=.\IPCStreamView.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Global:
+
+Package=<5>
+{{{
+}}}
+
+Package=<3>
+{{{
+    {E6908186-7498-11D7-A815-000101C61D9F}
+    {D5288403-E6C5-11D1-BE7D-C63815000000}
+    {3A2B370C-BA0A-11D1-B137-0000F8753F5D}
+}}}
+
+###############################################################################
+
