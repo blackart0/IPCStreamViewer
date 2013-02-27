@@ -165,6 +165,7 @@ public:
 
 	BOOL		m_bctlBorder;		// control border
 	BOOL		m_bplotBorder;		// plot border
+	BOOL		m_bLegend;			// legend
 	BOOL		m_blegendBorder;	// legend border
 	BOOL		m_bPrimaryLegend;	// primary legend
 	BOOL		m_bSecondaryLegend;	// secondary legend
@@ -173,6 +174,8 @@ public:
 	BOOL		m_bAxisBX;			// bottom axis
 	BOOL		m_bAutoScrollX;		// automatic x range scrolling
 	BOOL		m_bSimMode;			// simulate data input
+	BOOL		m_bGridH;			// Horizontal line/grid
+	BOOL		m_bGridV;			// vertical line/grid
 
 	static long	m_lMaxDataPrSerie;	// max allowed data pr. serie.
 	static long	m_lMaxDataTotal;	// max allowed data total.
@@ -211,7 +214,9 @@ public:
 
 	virtual void DrawYAxisGrid(CDC * dc);
 	virtual void DrawXAxisGrid(CDC * dc);
-
+	virtual void DrawXAxis(CDC * dc);
+	virtual void DrawYAxis(CDC * dc);
+	
 	virtual void ComputeRects(BOOL bInitialize);
 
 	virtual BOOL AddPoint(int serie, CTime &valuetime, double &y);
@@ -225,6 +230,26 @@ public:
 	virtual void SetBXTitle(const char *title);
 	virtual void SetLYTitle(const char *title);
 	virtual void SetRYTitle(const char *title);
+
+	BOOL			m_bSerieCapture;
+	virtual void	StartSerieCapture();
+	virtual void	StopSerieCapture();
+	virtual void	ZoomOutPlot();
+
+private:
+	CBitmap			m_MemBak;
+public:
+	double			m_OldValue;
+	BOOL			m_bGoodRange;
+	virtual void	NewFloatValue(double val);
+	virtual double	GetGoodRange(int index);
+	virtual void	DrawGoodRange(CDC * dc);
+	virtual void	DrawHFloatValue(CDC *dc,double val);
+	virtual void	StartHFloatCapture();
+	virtual void	StopHFloatCapture();
+	virtual void	OnNotifyInGoodRange();	// callback when data in good range
+
+
 // Overrides
 	// ClassWizard generated virtual function overrides
 	//{{AFX_VIRTUAL(clPlot)

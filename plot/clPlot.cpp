@@ -136,11 +136,17 @@ void serie::Reset()
 //*******************************************************************************************************/
 clPlot::clPlot()
 {
+	// 
+	m_OldValue=0.0;
+	m_bSerieCapture		= FALSE;
+	m_bGoodRange		= FALSE;
+
 	m_ctlBkColor		= RGB(255,255,255);
 	m_plotBkColor		= RGB(255,255,255);
 	m_legendBkColor		= RGB(255,255,255);
 	m_gridColor			= RGB(127,127,127);
 	m_bctlBorder		= TRUE;
+	m_bLegend			= TRUE;
 	m_bplotBorder		= TRUE;
 	m_blegendBorder		= TRUE;
 	m_bPrimaryLegend	= FALSE;
@@ -150,6 +156,8 @@ clPlot::clPlot()
 	m_bAxisBX			= TRUE;
 	m_bAutoScrollX		= FALSE;
 	m_bSimMode			= FALSE;
+	m_bGridV			= TRUE;
+	m_bGridH			= TRUE;
 
 	m_lMaxDataPrSerie	= 10000;
 	m_lMaxDataTotal		= 100000;
@@ -160,7 +168,7 @@ clPlot::clPlot()
 	lArraySize			= 1000;			// only points with differebt x,y will be put into the array
 
 	pLineArray			= new CPoint[lArraySize];
-	SetBXRange(CTime::GetCurrentTime()-CTimeSpan(60),CTime::GetCurrentTime());
+	SetBXRange(CTime::GetCurrentTime()-CTimeSpan(20),CTime::GetCurrentTime());
 
 	m_logFont.lfHeight			= -13;
 	m_logFont.lfWidth			= 0;
@@ -226,10 +234,10 @@ BOOL clPlot::Create(DWORD dwstyle, CRect &rect, CWnd *pParent, UINT id)
 
 	
 	m_ctlRect = rect;
-	pParent->ClientToScreen(m_ctlRect);
-	ScreenToClient(m_ctlRect);
+//	pParent->ClientToScreen(m_ctlRect);
+//	ScreenToClient(m_ctlRect);
 
-	ComputeRects(TRUE);
+//	ComputeRects(TRUE);
 	return TRUE;
 }
 
@@ -249,13 +257,12 @@ BOOL clPlot::Create(DWORD dwstyle, CRect &rect, CWnd *pParent, UINT id)
 void clPlot::ComputeRects(BOOL bInitialization)
 {
 	// adjust the client rect for borders
-
-	//GetClientRect(m_ctlRect);
+	GetClientRect(m_ctlRect);
 	CClientDC dc(this);
 	int w = 0;
 	int n=0;
 	CSize z=dc.GetTextExtent(CString("A"));
-//	m_TextHeight = z.cy;
+	m_TextHeight = z.cy;
 
 	m_dzoom = ((double)m_ctlRect.Height()/(double)z.cy) / 25.0;
 
@@ -278,8 +285,26 @@ void clPlot::ComputeRects(BOOL bInitialization)
 
 	if(bInitialization)
 	{
-		m_iMtop = m_iMbottom = m_clientRect.Height()/10;
-		m_iMleft = m_iMright = m_clientRect.Width()/10;
+		if(m_bAxisLY){
+			m_iMleft = m_clientRect.Width()/10;
+		}else{
+			m_iMleft = 0;
+		}
+		if(m_bAxisRY){
+			m_iMright = m_clientRect.Width()/10;
+		}else{
+			m_iMright = 0;
+		}
+		if(m_bAxisBX){
+			m_iMbottom = m_clientRect.Height()/10;
+		}else{
+			m_iMbottom = 0;
+		}
+		if(m_bLegend){
+			m_iMtop = m_clientRect.Height()/10;
+		}else{
+			m_iMtop = 0;
+		}
 	}
 
 	// compute plot rect.
@@ -355,7 +380,7 @@ void clPlot::OnPaint()
         CMemDC  pdc(&dc);  // non flickering painting
 
         Draw(&pdc);
-		
+	
 		// Do not call CWnd::OnPaint() for painting messages
 }
 
@@ -369,10 +394,21 @@ BOOL clPlot::OnEraseBkgnd(CDC* pDC)
 void clPlot::Draw(CDC * dc)
 {
 	CFont *oFont = dc->SelectObject(&m_font);
-	DrawBasic(dc);
-	DrawGrid(dc);
-	DrawPlot(dc);
-	DrawLegend(dc);
+	if(m_bSerieCapture==TRUE){
+		DrawBasic(dc);
+		DrawGrid(dc);
+		DrawXAxis(dc);
+		DrawYAxis(dc);
+		DrawPlot(dc);
+		if(m_bLegend==TRUE){
+			DrawLegend(dc);
+		}
+	}
+	if(m_bGoodRange==TRUE){
+		DrawGoodRange(dc);
+		double y =(double)(abs(rand())%1000);
+		DrawHFloatValue(dc,500);
+	}
 	dc->SelectObject(oFont);
 }
 
@@ -462,10 +498,55 @@ void clPlot::DrawSerie(CDC *dc,int s)
 //*******************************************************************************************************/
 void clPlot::DrawGrid(CDC * dc)
 {
-	DrawXAxisGrid(dc);
-	DrawYAxisGrid(dc);
+	if (m_bGridV)
+	{
+		DrawXAxisGrid(dc);
+	}
+	if(m_bGridH)
+	{
+		DrawYAxisGrid(dc);
+	}
 }
-
+//*******************************************************************************************************/
+//*******************************************************************************************************/
+void clPlot::DrawYAxis(CDC *dc)
+{
+	if(m_bAxisLY==FALSE && m_bAxisRY==FALSE){
+		return;
+	}
+	double yGrid = m_leftaxis.minrange;
+	double delta = 25.0 + (long)(((m_leftaxis.m_dValuePrPixel)))*25;
+	if((long)delta%50 != 0 && delta > 20.0)
+		delta +=25;
+	// todo: delta switch
+	long diff = ((long)yGrid)%((long)delta);
+	yGrid = yGrid - diff;
+	CPen *old, pen(PS_SOLID, 1, m_gridColor);
+		
+	old = dc->SelectObject(&pen);
+	while(yGrid <= m_leftaxis.maxrange)
+	{
+		double yy = m_plotRect.bottom - ((yGrid-m_leftaxis.minrange)/m_leftaxis.m_dValuePrPixel);
+		int y = (int)yy;
+		if(yGrid > m_leftaxis.minrange && yGrid<m_leftaxis.maxrange){
+			dc->MoveTo(CPoint(m_plotRect.left+1,y));
+			dc->LineTo(CPoint(m_plotRect.right-1,y));
+		}
+		
+		char b[100];
+		if(m_bAxisLY){
+			sprintf(b, "%.0f", yGrid);
+			dc->DrawText(b, CRect(m_clientRect.left, y-m_TextHeight/2,m_plotRect.left-5,y+m_TextHeight/2), DT_RIGHT|DT_BOTTOM);
+		}
+		if(m_bAxisRY){
+			double yr = (m_plotRect.bottom - yy) * m_rightaxis.m_dValuePrPixel + m_rightaxis.minrange;
+			sprintf(b, "%.0f", yr);
+			dc->DrawText(b, CRect(m_plotRect.right+5, y-m_TextHeight/2,m_clientRect.right,y+m_TextHeight/2), DT_LEFT|DT_BOTTOM);
+		}
+		yGrid += delta;
+	}
+	dc->SelectObject(old);
+}
 //*******************************************************************************************************/
 //*******************************************************************************************************/
 void clPlot::DrawYAxisGrid(CDC * dc)
@@ -490,43 +571,58 @@ void clPlot::DrawYAxisGrid(CDC * dc)
 		}
 		if(sy > m_leftaxis.minrange){
 			int y = (int)(m_plotRect.bottom - ((sy-m_leftaxis.minrange)/m_leftaxis.m_dValuePrPixel));
+			// draw mark
 			old = dc->SelectObject(&stick); 
-			dc->MoveTo(CPoint(m_plotRect.left,y));
-			dc->LineTo(CPoint(m_plotRect.left-off,y));
-			dc->MoveTo(CPoint(m_plotRect.right,y));
-			dc->LineTo(CPoint(m_plotRect.right+off,y));
+			if(m_bAxisLY){
+				dc->MoveTo(CPoint(m_plotRect.left,y));
+				dc->LineTo(CPoint(m_plotRect.left-off,y));
+			}
+			if(m_bAxisRY){
+				dc->MoveTo(CPoint(m_plotRect.right,y));
+				dc->LineTo(CPoint(m_plotRect.right+off,y));
+			}
 			dc->SelectObject(old);
-
+			// draw grid lines
 			old = dc->SelectObject(&mline);
 			dc->MoveTo(CPoint(m_plotRect.left+1,y));
 			dc->LineTo(CPoint(m_plotRect.right-1,y));
 			dc->SelectObject(old);
 		}
 	}
-
+	dc->SelectObject(old);
+}
+//*******************************************************************************************************/
+//*******************************************************************************************************/
+void clPlot::DrawXAxis(CDC * dc)
+{
+	if(m_bAxisBX==FALSE){
+		return;
+	}
+	long yGrid = m_timeaxis.m_mintime.GetTime();
+	long delta = (long)(10.0 + (long)(((m_timeaxis.m_dSecondsPrPixel)))*10);
+	// todo: delta switch
+	long diff = ((long)yGrid)%((long)delta);
+	yGrid = yGrid - diff;
+	CPen *old, pen(PS_SOLID, 1, m_gridColor);
+		
 	old = dc->SelectObject(&pen);
-	while(yGrid <= m_leftaxis.maxrange)
+	while(yGrid <= m_timeaxis.m_maxtime.GetTime())
 	{
-		double yy = m_plotRect.bottom - ((yGrid-m_leftaxis.minrange)/m_leftaxis.m_dValuePrPixel);
-		int y = (int)yy;
-		if(yGrid > m_leftaxis.minrange && yGrid<m_leftaxis.maxrange){
-			dc->MoveTo(CPoint(m_plotRect.left+1,y));
-			dc->LineTo(CPoint(m_plotRect.right-1,y));
+		int x = (int)(m_plotRect.left + ((yGrid-m_timeaxis.m_mintime.GetTime())/m_timeaxis.m_dSecondsPrPixel));
+		
+		if(yGrid > m_timeaxis.m_mintime.GetTime() && yGrid<m_timeaxis.m_maxtime.GetTime()){
+			dc->MoveTo(CPoint(x,m_plotRect.bottom-1));
+			dc->LineTo(CPoint(x,m_plotRect.top+1));
 		}
-
-		char b[100];
-		sprintf(b, "%.0f", yGrid);
-		dc->DrawText(b, CRect(m_clientRect.left, y-m_TextHeight/2,m_plotRect.left-5,y+m_TextHeight/2), DT_RIGHT|DT_BOTTOM);
-
-		double yr = (m_plotRect.bottom - yy) * m_rightaxis.m_dValuePrPixel + m_rightaxis.minrange;
-		sprintf(b, "%.0f", yr);
-		dc->DrawText(b, CRect(m_plotRect.right+5, y-m_TextHeight/2,m_clientRect.right,y+m_TextHeight/2), DT_LEFT|DT_BOTTOM);
-
+		
+		//		char b[100];
+		//		sprintf(b, "%.0f", yGrid);
+		//		dc->DrawText(b, CRect(m_clientRect.left, y-m_TextHeight/2,m_plotRect.left-5,y+m_TextHeight/2), DT_RIGHT|DT_BOTTOM);
+		
 		yGrid += delta;
 	}
 	dc->SelectObject(old);
 }
-
 //*******************************************************************************************************/
 //*******************************************************************************************************/
 void clPlot::DrawXAxisGrid(CDC * dc)
@@ -560,23 +656,6 @@ void clPlot::DrawXAxisGrid(CDC * dc)
 			dc->LineTo(CPoint(x,m_plotRect.top+1));
 			dc->SelectObject(old);
 		}
-	}
-
-	old = dc->SelectObject(&pen);
-	while(yGrid <= m_timeaxis.m_maxtime.GetTime())
-	{
-		int x = (int)(m_plotRect.left + ((yGrid-m_timeaxis.m_mintime.GetTime())/m_timeaxis.m_dSecondsPrPixel));
-
-		if(yGrid > m_timeaxis.m_mintime.GetTime() && yGrid<m_timeaxis.m_maxtime.GetTime()){
-			dc->MoveTo(CPoint(x,m_plotRect.bottom-1));
-			dc->LineTo(CPoint(x,m_plotRect.top+1));
-		}
-
-//		char b[100];
-//		sprintf(b, "%.0f", yGrid);
-//		dc->DrawText(b, CRect(m_clientRect.left, y-m_TextHeight/2,m_plotRect.left-5,y+m_TextHeight/2), DT_RIGHT|DT_BOTTOM);
-
-		yGrid += delta;
 	}
 	dc->SelectObject(old);
 }
@@ -632,6 +711,9 @@ void clPlot::DrawLegend(CDC * dc)
 //*******************************************************************************************************/
 BOOL clPlot::AddPoint(int serie, CTime &valuetime, double &value)
 {
+	if(m_bSerieCapture==FALSE){
+		return FALSE;
+	}
 	if(m_series[serie].m_lNoValues < m_lMaxDataPrSerie){
 		m_series[serie].AddPoint(valuetime, value);
 		if(m_bAutoScrollX && valuetime > m_timeaxis.m_maxtime){
@@ -640,6 +722,11 @@ BOOL clPlot::AddPoint(int serie, CTime &valuetime, double &value)
 
 			SetBXRange(CTime(mintime), valuetime);
 		}
+		// redraw
+		CRect rc;
+		GetWindowRect(rc);
+		ScreenToClient(rc);
+		InvalidateRect(rc);
 		return TRUE;
 	}
 	return FALSE;
@@ -700,6 +787,9 @@ void clPlot::SetSerie(int s, int style, COLORREF color, double minrange, double 
 	m_series[s].m_color = color;
 	m_series[s].m_iLineStyle = style;
 	m_series[s].m_bRightAxisAlign = Rightalign;
+
+	m_leftaxis.minrange=m_rightaxis.minrange=minrange;
+	m_leftaxis.maxrange=m_rightaxis.maxrange=maxrange;
 }
 
 //*******************************************************************************************************/
@@ -738,4 +828,132 @@ void clPlot::SetLegend(int l, int style, COLORREF color, const char *text)
 	m_legendRect.right = m_legendRect.left + 10+(2*m_TextHeight) + w;
 	m_legendRect.bottom = m_legendRect.top + 10 + (m_TextHeight*n);
 	dc.SelectObject(oFont);
+}
+
+//*******************************************************************************************************/
+//*******************************************************************************************************/
+void clPlot::StartSerieCapture()
+{
+	m_bSerieCapture=TRUE;
+}
+//*******************************************************************************************************/
+//*******************************************************************************************************/
+void clPlot::StopSerieCapture()
+{
+	m_bSerieCapture=FALSE;
+}
+//*******************************************************************************************************/
+//*******************************************************************************************************/
+void clPlot::ZoomOutPlot()
+{
+
+}
+//*******************************************************************************************************/
+//*******************************************************************************************************/
+double clPlot::GetGoodRange(int index) // value >= sepcific-value
+{
+	return 900.0;
+}
+//*******************************************************************************************************/
+//*******************************************************************************************************/
+void clPlot::StartHFloatCapture()
+{       
+	int y = (int)(m_plotRect.bottom - ((GetGoodRange(0)-m_leftaxis.minrange)/m_leftaxis.m_dValuePrPixel));
+	CRect rect;
+	rect.left=m_plotRect.left;
+	rect.right=m_plotRect.bottom;
+	rect.top=y;
+	rect.bottom=y+1;
+	InvalidateRect(rect);
+
+	m_bGoodRange=TRUE;
+}
+//*******************************************************************************************************/
+//*******************************************************************************************************/
+void clPlot::StopHFloatCapture()
+{
+	m_bGoodRange=FALSE;
+}
+//*******************************************************************************************************/
+//*******************************************************************************************************/
+void clPlot::OnNotifyInGoodRange()
+{
+	printf("value in good range...\n");
+}
+//*******************************************************************************************************/
+//*******************************************************************************************************/
+void clPlot::DrawHFloatValue(CDC *dc,double val)
+{
+	static BOOL b_firstDraw=TRUE;
+
+	if(val==m_OldValue){
+		return;
+	}
+
+	CDC MemDC;
+	CBitmap *pOldMem;
+	CPen *pOldPen;
+	CPen stick(PS_SOLID,0,RGB(255,255,0));
+	int y;
+
+
+	if(b_firstDraw==FALSE){
+		// recovery old dc mem
+		//pOldMem=MemDC.SelectObject(&m_MemBak);
+		y = (int)(m_plotRect.bottom - ((m_OldValue-m_leftaxis.minrange)/m_leftaxis.m_dValuePrPixel));
+		dc->BitBlt(m_plotRect.left,y,m_plotRect.Width(),1,&MemDC,0,0,SRCCOPY);
+	}
+	else{ // draw new line
+		MemDC.CreateCompatibleDC(NULL);
+		m_MemBak.CreateCompatibleBitmap(dc,m_plotRect.Width(),m_plotRect.Height());
+		pOldMem=MemDC.SelectObject(&m_MemBak);
+		b_firstDraw=FALSE;
+	}
+	//backup first
+	y = (int)(m_plotRect.bottom - ((val-m_leftaxis.minrange)/m_leftaxis.m_dValuePrPixel));
+	MemDC.BitBlt(0,0,m_plotRect.Width(),1,dc,m_plotRect.left,y,SRCCOPY);
+
+	dc->BitBlt(50,100,m_plotRect.Width(),1,&MemDC,0,0,SRCCOPY);
+	//and draw new line
+	pOldPen=dc->SelectObject(&stick);
+	dc->MoveTo(m_plotRect.left,y);
+	dc->LineTo(m_plotRect.right,y);
+	dc->SelectObject(pOldPen);
+
+	m_OldValue=val;
+
+	//m_MemBak.DeleteObject();
+	//MemDC.DeleteDC();
+}
+//*******************************************************************************************************/
+//*******************************************************************************************************/
+void clPlot::DrawGoodRange(CDC *dc)
+{
+	CPen *old;
+	CPen stick(PS_SOLID,0,RGB(0,255,0));
+	int y = (int)(m_plotRect.bottom - ((GetGoodRange(0)-m_leftaxis.minrange)/m_leftaxis.m_dValuePrPixel));
+	old = dc->SelectObject(&stick); 
+	dc->MoveTo(CPoint(m_plotRect.left,y));
+	dc->LineTo(CPoint(m_plotRect.right,y));
+	dc->SelectObject(old);
+}
+//*******************************************************************************************************/
+//*******************************************************************************************************/
+void clPlot::NewFloatValue(double val)
+{
+	int y = (int)(m_plotRect.bottom - ((val-m_leftaxis.minrange)/m_leftaxis.m_dValuePrPixel));
+	CRect rect,rect2;
+	rect.left=m_plotRect.left;
+	rect.right=m_plotRect.bottom;
+	rect.top=y;
+	rect.bottom=y+1;
+	InvalidateRect(rect);
+
+	if(m_OldValue != 0){
+		rect2=rect;
+		y = (int)(m_plotRect.bottom - ((m_OldValue-m_leftaxis.minrange)/m_leftaxis.m_dValuePrPixel));
+		rect2.top=y;
+		rect2.bottom=y+1;
+		InvalidateRect(rect2);
+	}
 }

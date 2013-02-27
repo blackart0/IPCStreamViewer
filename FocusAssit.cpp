@@ -57,19 +57,19 @@ void CFocusAssit::OnButtonSample()
 {
 	// TODO: Add your control notification handler code here
 	// ÉèÖÃ±êÌâ
-	InitPlot();
+	m_Plot.StartSerieCapture();
 }
 
 void CFocusAssit::OnButtonStartFocus() 
 {
 	// TODO: Add your control notification handler code here
-	
+	m_Plot.StopSerieCapture();
+	m_Plot.StartHFloatCapture();
 }
 
 void CFocusAssit::OnButtonStopFocus2() 
 {
 	// TODO: Add your control notification handler code here
-	
 }
 
 int CFocusAssit::OnCreate(LPCREATESTRUCT lpCreateStruct) 
@@ -112,7 +112,7 @@ void CFocusAssit::OnSize(UINT nType, int cx, int cy)
 	CDialog::OnSize(nType, cx, cy);
 	
 	// TODO: Add your message handler code here
-	if(canSize){
+	if(g_WndShowed){
 		CRect Rect;
 		GetClientRect(Rect);
 		m_Plot.MoveWindow(Rect);
@@ -184,16 +184,13 @@ HBRUSH CFocusAssit::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor)
 CRect CFocusAssit::GetPreviewRect()
 {
 	CRect rect;
-	RECT ViewRect;
-	RECT WndRect;
-	GetWindowRect(&WndRect);
 	CWnd *pwnd=GetDlgItem(IDC_STATIC_VIEW_AREA);
-	//pwnd->GetClientRect(&ViewRect);
-	pwnd->GetWindowRect(&ViewRect);
-	rect.right = ViewRect.right + WndRect.left - 15 ;
-	rect.left = ViewRect.left + WndRect.left +5;
-	rect.bottom = ViewRect.bottom - WndRect.top - 5;
-	rect.top = ViewRect.top-WndRect.top+25;
+	pwnd->GetWindowRect(&rect);
+	ScreenToClient(&rect);
+	rect.right -= 10 ;
+	rect.left += 5;
+	rect.bottom -= 5;
+	rect.top += 25;
 	return rect;
 }
 
@@ -211,23 +208,19 @@ void CFocusAssit::InitPreview()
 CRect CFocusAssit::GetPlotRect()
 {
 	CRect rect;
-	RECT ViewRect;
-	RECT WndRect;
-	GetWindowRect(&WndRect);
 	CWnd *pwnd=GetDlgItem(IDC_STATIC_FOCUS_ASSIST);
-	//pwnd->GetClientRect(&ViewRect);
-	pwnd->GetWindowRect(&ViewRect);
-	rect.right = ViewRect.right - ViewRect.left - 40 -  5 ;
-	rect.left = 5;
-	rect.bottom = ViewRect.bottom - ViewRect.top - 50 - 5;;
-	rect.top = 25;
+	pwnd->GetWindowRect(&rect);
+	ScreenToClient(&rect);
+	rect.right -= 10 ;
+	rect.left += 5;
+	rect.bottom -= 60;
+	rect.top += 25;
 	return rect;
 }
 
 void CFocusAssit::InitPlot()
 {
 	CRect Rect=GetPlotRect();
-	//GetClientRect(Rect);
 	if(m_Plot.Create(WS_VISIBLE | WS_CHILD,Rect,this,2000)==FALSE){
 		printf("create plot error:%d",GetLastError());
 		return;
@@ -235,7 +228,6 @@ void CFocusAssit::InitPlot()
 	else{
 		printf("create plot success.");
 	}
-	m_Plot.MoveWindow(Rect);
 	
 	m_Plot.SetSerie(0, PS_SOLID, RGB(255,0,0), 0.0, 1000.0, "Pressure");
 	
@@ -250,6 +242,14 @@ void CFocusAssit::InitPlot()
 	m_Plot.m_bAxisBX=FALSE;
 	m_Plot.m_bAxisLY=FALSE;
 	m_Plot.m_bAxisRY=FALSE;
+	m_Plot.m_bGridH=TRUE;
+	m_Plot.m_bGridV=FALSE;
+	m_Plot.m_bLegend=FALSE;
+
+	m_Plot.SetBXRange(CTime::GetCurrentTime()-CTimeSpan(20),CTime::GetCurrentTime());
+
+	// recompute rect
+	m_Plot.ComputeRects(TRUE);
 	
 	SetTimer(1,1000,NULL);
 	canSize=TRUE;
@@ -260,11 +260,16 @@ void CFocusAssit::OnTimer(UINT nIDEvent)
 	static BOOL pros={FALSE};
 	if(!pros){
 		pros=TRUE;
-		{
-			double y =(double)(abs(rand())%1000);
-			m_Plot.AddPoint(0,  CTime::GetCurrentTime(), y);
-		}
-		Invalidate();
+
+		double y =(double)(abs(rand())%1000);
+		m_Plot.AddPoint(0,  CTime::GetCurrentTime(), y);
+		m_Plot.NewFloatValue(y);
+/*	
+		CRect rc;
+		m_Plot.GetWindowRect(rc);
+		ScreenToClient(rc);
+		InvalidateRect(rc);
+	*/
 		pros=FALSE;
 	}
 	CWnd::OnTimer(nIDEvent);

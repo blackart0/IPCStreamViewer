@@ -13,9 +13,9 @@ Class2=CIPCStreamViewDlg
 Class3=CAboutDlg
 
 ResourceCount=5
-Resource1=IDD_ABOUTBOX
+Resource1=IDD_IPCSTREAMVIEW_DIALOG
 Resource2=IDR_MAINFRAME
-Resource3=IDD_IPCSTREAMVIEW_DIALOG
+Resource3=IDD_ABOUTBOX
 Resource4=IDD_DIALOG_FOCUS_ASSIST
 Class4=CFocusAssit
 Class5=CPreview
