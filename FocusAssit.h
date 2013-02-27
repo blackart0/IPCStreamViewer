@@ -6,6 +6,9 @@
 #if _MSC_VER > 1000
 #pragma once
 #endif // _MSC_VER > 1000
+
+#include "clPlot.h"
+
 // FocusAssit.h : header file
 //
 #include "ViewWnd.h"
@@ -14,6 +17,9 @@
 
 class CFocusAssit : public CDialog
 {
+public:
+	clPlot m_Plot;
+	BOOL canSize;
 private:
 	CViewWnd m_focusview;
 // Construction
@@ -21,10 +27,11 @@ public:
 	CFocusAssit(CWnd* pParent = NULL);   // standard constructor
 	CRect GetPreviewRect();
 	void InitPreview();
+	//
+	CRect GetPlotRect();
+	void InitPlot();
 
 protected:
-	void InitChart();
-	void DrawChart();
 // Dialog Data
 	//{{AFX_DATA(CFocusAssit)
 	enum { IDD = IDD_DIALOG_FOCUS_ASSIST };
@@ -56,6 +63,8 @@ protected:
 	afx_msg void OnPaint();
 	virtual BOOL OnInitDialog();
 	afx_msg HBRUSH OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor);
+	afx_msg void OnTimer(UINT nIDEvent);
+	afx_msg BOOL OnEraseBkgnd(CDC* pDC);
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 };

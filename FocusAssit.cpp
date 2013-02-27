@@ -22,6 +22,7 @@ CFocusAssit::CFocusAssit(CWnd* pParent /*=NULL*/)
 {
 	//{{AFX_DATA_INIT(CFocusAssit)
 	//}}AFX_DATA_INIT
+	canSize=FALSE;
 }
 
 
@@ -43,6 +44,7 @@ BEGIN_MESSAGE_MAP(CFocusAssit, CDialog)
 	ON_WM_DESTROY()
 	ON_WM_SHOWWINDOW()
 	ON_WM_SIZE()
+	ON_WM_TIMER()
 	ON_WM_PAINT()
 	ON_WM_CTLCOLOR()
 	//}}AFX_MSG_MAP
@@ -55,6 +57,7 @@ void CFocusAssit::OnButtonSample()
 {
 	// TODO: Add your control notification handler code here
 	// 设置标题
+	InitPlot();
 }
 
 void CFocusAssit::OnButtonStartFocus() 
@@ -109,6 +112,11 @@ void CFocusAssit::OnSize(UINT nType, int cx, int cy)
 	CDialog::OnSize(nType, cx, cy);
 	
 	// TODO: Add your message handler code here
+	if(canSize){
+		CRect Rect;
+		GetClientRect(Rect);
+		m_Plot.MoveWindow(Rect);
+	}
 }
 
 int CFocusAssit::DoModal() 
@@ -150,6 +158,8 @@ BOOL CFocusAssit::OnInitDialog()
 	m_tips.AddString("3.点击开始微调按钮，并缓慢调整焦距");
 	m_tips.AddString("4.直至落到绿色区域时，调焦结束");
 	m_tips.AddString("5.点击结束微调按钮，结束调焦");
+	// init cplot
+	InitPlot();
 
 	return TRUE;  // return TRUE unless you set the focus to a control
 	              // EXCEPTION: OCX Property Pages should return FALSE
@@ -196,4 +206,66 @@ void CFocusAssit::InitPreview()
 		m_focusview.Create(_T(""), WS_VISIBLE | SS_NOTIFY | SS_CENTER , rect, this, 5);
 		bCreated=TRUE;
 	}
+}
+
+CRect CFocusAssit::GetPlotRect()
+{
+	CRect rect;
+	RECT ViewRect;
+	RECT WndRect;
+	GetWindowRect(&WndRect);
+	CWnd *pwnd=GetDlgItem(IDC_STATIC_FOCUS_ASSIST);
+	//pwnd->GetClientRect(&ViewRect);
+	pwnd->GetWindowRect(&ViewRect);
+	rect.right = ViewRect.right - ViewRect.left - 40 -  5 ;
+	rect.left = 5;
+	rect.bottom = ViewRect.bottom - ViewRect.top - 50 - 5;;
+	rect.top = 25;
+	return rect;
+}
+
+void CFocusAssit::InitPlot()
+{
+	CRect Rect=GetPlotRect();
+	//GetClientRect(Rect);
+	if(m_Plot.Create(WS_VISIBLE | WS_CHILD,Rect,this,2000)==FALSE){
+		printf("create plot error:%d",GetLastError());
+		return;
+	}
+	else{
+		printf("create plot success.");
+	}
+	m_Plot.MoveWindow(Rect);
+	
+	m_Plot.SetSerie(0, PS_SOLID, RGB(255,0,0), 0.0, 1000.0, "Pressure");
+	
+	m_Plot.SetLegend(0, PS_SOLID, RGB(255,0,0), "Temperature");
+	
+	m_Plot.m_bAutoScrollX=TRUE;
+	m_Plot.m_bctlBorder=FALSE;
+	m_Plot.m_bplotBorder=FALSE;
+	m_Plot.m_blegendBorder=FALSE;
+	m_Plot.m_bPrimaryLegend=FALSE;
+	m_Plot.m_bSecondaryLegend=FALSE;
+	m_Plot.m_bAxisBX=FALSE;
+	m_Plot.m_bAxisLY=FALSE;
+	m_Plot.m_bAxisRY=FALSE;
+	
+	SetTimer(1,1000,NULL);
+	canSize=TRUE;
+}
+
+void CFocusAssit::OnTimer(UINT nIDEvent)
+{
+	static BOOL pros={FALSE};
+	if(!pros){
+		pros=TRUE;
+		{
+			double y =(double)(abs(rand())%1000);
+			m_Plot.AddPoint(0,  CTime::GetCurrentTime(), y);
+		}
+		Invalidate();
+		pros=FALSE;
+	}
+	CWnd::OnTimer(nIDEvent);
 }

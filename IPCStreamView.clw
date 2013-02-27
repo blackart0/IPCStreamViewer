@@ -2,7 +2,7 @@
 
 [General Info]
 Version=1
-LastClass=CPreview
+LastClass=CFocusAssit
 LastTemplate=CDialog
 NewFileInclude1=#include "stdafx.h"
 NewFileInclude2=#include "IPCStreamView.h"
@@ -13,9 +13,9 @@ Class2=CIPCStreamViewDlg
 Class3=CAboutDlg
 
 ResourceCount=5
-Resource1=IDD_DIALOG_FOCUS_ASSIST
+Resource1=IDD_ABOUTBOX
 Resource2=IDR_MAINFRAME
-Resource3=IDD_ABOUTBOX
+Resource3=IDD_DIALOG_FOCUS_ASSIST
 Resource4=IDD_IPCSTREAMVIEW_DIALOG
 Class4=CFocusAssit
 Class5=CPreview
