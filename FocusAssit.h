@@ -7,7 +7,7 @@
 #pragma once
 #endif // _MSC_VER > 1000
 
-#include "clPlot.h"
+#include "plot/clPlot.h"
 
 // FocusAssit.h : header file
 //
