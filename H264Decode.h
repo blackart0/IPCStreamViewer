@@ -4,6 +4,8 @@
 #include "hi_h264api.h"
 #include "gfun.h"
 
+#include "BlurJudge.h"
+
 #define AVIFRAMERATE 16
 typedef void (* DCMSGCALLBACK)(HDC hdc,int nChl,LPVOID lParam);
 
@@ -73,4 +75,10 @@ public:
 	~CH264Decode(void);
 	int put_jpeg_yuv420p_file(const char * filename, unsigned char *image, int width, 
 									   int height, int quality) ;
+
+// blur judge by kaga
+private:
+	BOOL		m_bBlurJudgeEnable;
+public:
+	BlurJudge m_blurjudge;
 };

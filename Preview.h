@@ -12,7 +12,7 @@
 
 class CPreview : public CDialog
 {
-private:
+public:
 	CViewWnd m_streamview;
 
 // Construction

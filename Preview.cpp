@@ -61,7 +61,7 @@ void CPreview::OnShowWindow(BOOL bShow, UINT nStatus)
 	// TODO: Add your message handler code here
 	if (bShow)
 	{
-		m_streamview.preview("192.168.1.24",80,"");
+		m_streamview.preview(sz_DevIp,i_Port,"");
 	} 
 	else
 	{
@@ -89,7 +89,7 @@ void CPreview::OnDestroy()
 	CDialog::OnDestroy();
 	
 	// TODO: Add your message handler code here
-	m_streamview.Closeconn();
+	//m_streamview.Closeconn();
 
 }
 
@@ -106,12 +106,8 @@ BOOL CPreview::OnInitDialog()
 CRect CPreview::GetPreviewRect()
 {
 	CRect rect;
-	RECT ViewRect;
-	GetWindowRect(&ViewRect);
-	rect.right = ViewRect.right - ViewRect.left - 5 * 2;
-	rect.left = 5;
-	rect.bottom = ViewRect.bottom - ViewRect.top - 35 - 5;
-	rect.top = 5;
+	GetWindowRect(&rect);
+	ScreenToClient(&rect);
 	return rect;
 }
 

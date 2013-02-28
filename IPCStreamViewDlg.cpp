@@ -249,7 +249,8 @@ void CIPCStreamViewDlg::OnDestroy()
 	CDialog::OnDestroy();
 	
 	// TODO: Add your message handler code here
-	//m_streamview.Closeconn();
+	m_preview.m_streamview.Closeconn();
+	m_focusAssist.m_focusview.Closeconn();
 	DdrawDeinit();
 	
 }

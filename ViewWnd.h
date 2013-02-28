@@ -9,6 +9,9 @@
 
 #include "ClientA.h"
 #include "H264Decode.h"
+
+extern char *sz_DevIp;
+extern unsigned i_Port;
 /////////////////////////////////////////////////////////////////////////////
 // CViewWnd window
 
@@ -20,9 +23,10 @@ public:
 
 // Attributes
 public:
+	CH264Decode m_Dec;
+
 private:
 	CClientA m_ClientSock;
-	CH264Decode m_Dec;
 	bool	m_bOpenedChl;
 	char	m_sAddress[128];
 	char	m_sEseeId[64];

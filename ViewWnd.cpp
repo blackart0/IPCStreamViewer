@@ -12,6 +12,8 @@
 static char THIS_FILE[] = __FILE__;
 #endif
 
+char *sz_DevIp="192.168.1.22";
+unsigned i_Port=80;
 /////////////////////////////////////////////////////////////////////////////
 // CViewWnd
 

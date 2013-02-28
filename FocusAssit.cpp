@@ -21,6 +21,7 @@ CFocusAssit::CFocusAssit(CWnd* pParent /*=NULL*/)
 	: CDialog(CFocusAssit::IDD, pParent)
 {
 	//{{AFX_DATA_INIT(CFocusAssit)
+	m_port = _T("");
 	//}}AFX_DATA_INIT
 	canSize=FALSE;
 }
@@ -30,7 +31,9 @@ void CFocusAssit::DoDataExchange(CDataExchange* pDX)
 {
 	CDialog::DoDataExchange(pDX);
 	//{{AFX_DATA_MAP(CFocusAssit)
+	DDX_Control(pDX, IDC_IPADDRESS1, m_ipAddr);
 	DDX_Control(pDX, IDC_LIST_TIPS, m_tips);
+	DDX_Text(pDX, IDC_EDIT_PORT, m_port);
 	//}}AFX_DATA_MAP
 }
 
@@ -57,6 +60,7 @@ void CFocusAssit::OnButtonSample()
 {
 	// TODO: Add your control notification handler code here
 	// 设置标题
+	m_Plot.StopHFloatCapture();
 	m_Plot.StartSerieCapture();
 }
 
@@ -70,6 +74,7 @@ void CFocusAssit::OnButtonStartFocus()
 void CFocusAssit::OnButtonStopFocus2() 
 {
 	// TODO: Add your control notification handler code here
+	m_Plot.Reset();
 }
 
 int CFocusAssit::OnCreate(LPCREATESTRUCT lpCreateStruct) 
@@ -87,7 +92,7 @@ void CFocusAssit::OnDestroy()
 	CDialog::OnDestroy();
 	
 	// TODO: Add your message handler code here
-	m_focusview.Closeconn();
+	//m_focusview.Closeconn();
 }
 
 void CFocusAssit::OnShowWindow(BOOL bShow, UINT nStatus) 
@@ -98,7 +103,7 @@ void CFocusAssit::OnShowWindow(BOOL bShow, UINT nStatus)
 	if (bShow)
 	{
 		//InitPreview();
-		m_focusview.preview("192.168.1.24",80,"");
+		m_focusview.preview(sz_DevIp,i_Port,"");
 	} 
 	else
 	{
@@ -113,9 +118,9 @@ void CFocusAssit::OnSize(UINT nType, int cx, int cy)
 	
 	// TODO: Add your message handler code here
 	if(g_WndShowed){
-		CRect Rect;
-		GetClientRect(Rect);
-		m_Plot.MoveWindow(Rect);
+		CRect rect;
+		rect=GetPlotRect();
+		m_Plot.MoveWindow(rect);
 	}
 }
 
@@ -158,8 +163,14 @@ BOOL CFocusAssit::OnInitDialog()
 	m_tips.AddString("3.点击开始微调按钮，并缓慢调整焦距");
 	m_tips.AddString("4.直至落到绿色区域时，调焦结束");
 	m_tips.AddString("5.点击结束微调按钮，结束调焦");
+	BYTE s[4];
+	//sscanf(sz_DevIp,"%[^.].%[^.].%[^.].%d",&s[0],&s[1],&s[2],&s[3]);
+	m_ipAddr.SetAddress(s[0],s[1],s[2],s[3]);
+	//m_port="80";
+	//UpdateData(FALSE);
 	// init cplot
 	InitPlot();
+	
 
 	return TRUE;  // return TRUE unless you set the focus to a control
 	              // EXCEPTION: OCX Property Pages should return FALSE
@@ -229,9 +240,9 @@ void CFocusAssit::InitPlot()
 		printf("create plot success.");
 	}
 	
-	m_Plot.SetSerie(0, PS_SOLID, RGB(255,0,0), 0.0, 1000.0, "Pressure");
+	m_Plot.SetSerie(0, PS_SOLID, RGB(255,0,0), 0.0, 100.0, "Blur");
 	
-	m_Plot.SetLegend(0, PS_SOLID, RGB(255,0,0), "Temperature");
+	m_Plot.SetLegend(0, PS_SOLID, RGB(255,0,0), "Blur");
 	
 	m_Plot.m_bAutoScrollX=TRUE;
 	m_Plot.m_bctlBorder=FALSE;
@@ -251,12 +262,15 @@ void CFocusAssit::InitPlot()
 	// recompute rect
 	m_Plot.ComputeRects(TRUE);
 	
-	SetTimer(1,1000,NULL);
+	//SetTimer(1,33,NULL);
+	m_focusview.m_Dec.m_blurjudge.SetPlot(&m_Plot);
+
 	canSize=TRUE;
 }
 
 void CFocusAssit::OnTimer(UINT nIDEvent)
 {
+#if 0
 	static BOOL pros={FALSE};
 	if(!pros){
 		pros=TRUE;
@@ -264,13 +278,14 @@ void CFocusAssit::OnTimer(UINT nIDEvent)
 		double y =(double)(abs(rand())%1000);
 		m_Plot.AddPoint(0,  CTime::GetCurrentTime(), y);
 		m_Plot.NewFloatValue(y);
-/*	
+	
 		CRect rc;
 		m_Plot.GetWindowRect(rc);
 		ScreenToClient(rc);
 		InvalidateRect(rc);
-	*/
+
 		pros=FALSE;
 	}
+#endif
 	CWnd::OnTimer(nIDEvent);
 }

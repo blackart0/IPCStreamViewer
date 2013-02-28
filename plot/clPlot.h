@@ -114,6 +114,7 @@ public:
 	~serie();
 
 	void AddPoint(CTime &valuetime, double &y);
+	double GetMaxValue();
 	void Reset();
 };
 
@@ -239,6 +240,7 @@ public:
 private:
 	CBitmap			m_MemBak;
 public:
+	double			m_newValue;
 	double			m_OldValue;
 	BOOL			m_bGoodRange;
 	virtual void	NewFloatValue(double val);

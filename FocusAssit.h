@@ -20,7 +20,6 @@ class CFocusAssit : public CDialog
 public:
 	clPlot m_Plot;
 	BOOL canSize;
-private:
 	CViewWnd m_focusview;
 // Construction
 public:
@@ -35,7 +34,9 @@ protected:
 // Dialog Data
 	//{{AFX_DATA(CFocusAssit)
 	enum { IDD = IDD_DIALOG_FOCUS_ASSIST };
+	CIPAddressCtrl	m_ipAddr;
 	CListBox	m_tips;
+	CString	m_port;
 	//}}AFX_DATA
 
 

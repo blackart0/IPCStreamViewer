@@ -31,6 +31,9 @@ CH264Decode::CH264Decode(void)
 	InitializeCriticalSection(&m_csCritial);
 	InitializeCriticalSection(&m_csDcCallback);
 	InitializeCriticalSection(&m_csDecFrames);
+
+	//kaga
+	m_bBlurJudgeEnable=TRUE;
 }
 
 
@@ -108,7 +111,7 @@ BOOL CH264Decode::DeinitDec()
 	return TRUE;
 }
 
-
+static long n_packet=0;
 BOOL CH264Decode::InputDate(LPVOID pDate,int nDateLen)
 {
 	EnterCriticalSection(&g_csDecInit);
@@ -137,6 +140,13 @@ BOOL CH264Decode::InputDate(LPVOID pDate,int nDateLen)
 	}
 	while (HI_H264DEC_OK == nResult)
 	{
+		//kaga
+		if(m_bBlurJudgeEnable==TRUE){
+			if((++n_packet)%15==0){
+				m_blurjudge.SetData(DecFrames.pY,DecFrames.uWidth,DecFrames.uHeight);
+				m_blurjudge.DoJudge();
+			}
+		}
 		DecodePreviewData(DecFrames);
 		EnterCriticalSection(&m_csDecFrames);
 		m_DecFramesBack.uHeight = DecFrames.uHeight;

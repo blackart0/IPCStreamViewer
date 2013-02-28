@@ -25,6 +25,11 @@
 static char THIS_FILE[] = __FILE__;
 #endif
 
+#include <mmsystem.h>	// play sound
+#pragma comment(lib,"winmm")	
+
+static BOOL b_firstDraw=TRUE;
+
 long	clPlot::m_lMaxDataPrSerie;	// max allowed data pr. serie.
 long	clPlot::m_lMaxDataTotal;	// max allowed data total.
 
@@ -106,6 +111,32 @@ void serie::AddPoint(CTime &valuetime , double &y)
 		if(m_lbegin >= clPlot::m_lMaxDataPrSerie)
 			m_lbegin=0;
 	}
+}
+
+//*******************************************************************************************************/
+//* Function:		serie::GetMaxValue
+//*
+//* Description:	
+//*
+//* Parameters:		
+//* Return Value:
+//*
+//* Author:	
+//*******************************************************************************************************/
+double serie::GetMaxValue()
+{
+	double max=-1;
+#if 0
+	for(int i=m_lbegin;i<m_lend;i++)	// only current page datas
+#else
+	for(int i=0;i<m_lend;i++)	// all datas
+#endif
+	{
+		if(m_pvalues[i].dValue > max){
+			max = m_pvalues[i].dValue;
+		}
+	}
+	return max;
 }
 
 //*******************************************************************************************************/
@@ -394,7 +425,8 @@ BOOL clPlot::OnEraseBkgnd(CDC* pDC)
 void clPlot::Draw(CDC * dc)
 {
 	CFont *oFont = dc->SelectObject(&m_font);
-	if(m_bSerieCapture==TRUE){
+	//if(m_bSerieCapture==TRUE)
+	{
 		DrawBasic(dc);
 		DrawGrid(dc);
 		DrawXAxis(dc);
@@ -406,8 +438,7 @@ void clPlot::Draw(CDC * dc)
 	}
 	if(m_bGoodRange==TRUE){
 		DrawGoodRange(dc);
-		double y =(double)(abs(rand())%1000);
-		DrawHFloatValue(dc,500);
+		DrawHFloatValue(dc,m_newValue);
 	}
 	dc->SelectObject(oFont);
 }
@@ -727,6 +758,7 @@ BOOL clPlot::AddPoint(int serie, CTime &valuetime, double &value)
 		GetWindowRect(rc);
 		ScreenToClient(rc);
 		InvalidateRect(rc);
+		Invalidate();
 		return TRUE;
 	}
 	return FALSE;
@@ -777,6 +809,13 @@ void clPlot::SetRYTitle(const char *title)
 //*******************************************************************************************************/
 void clPlot::Reset()
 {
+	StopSerieCapture();
+	StopHFloatCapture();
+	for(int i=0;i<MAXSERIES;i++){
+		m_series[i].Reset();
+	}
+	Invalidate();
+	//lArraySize=0;
 }
 
 //*******************************************************************************************************/
@@ -852,7 +891,7 @@ void clPlot::ZoomOutPlot()
 //*******************************************************************************************************/
 double clPlot::GetGoodRange(int index) // value >= sepcific-value
 {
-	return 900.0;
+	return m_series[index].GetMaxValue()-3;
 }
 //*******************************************************************************************************/
 //*******************************************************************************************************/
@@ -862,7 +901,7 @@ void clPlot::StartHFloatCapture()
 	CRect rect;
 	rect.left=m_plotRect.left;
 	rect.right=m_plotRect.bottom;
-	rect.top=y;
+	rect.top=y-1;
 	rect.bottom=y+1;
 	InvalidateRect(rect);
 
@@ -879,58 +918,53 @@ void clPlot::StopHFloatCapture()
 void clPlot::OnNotifyInGoodRange()
 {
 	printf("value in good range...\n");
+	CString sz_alarm="goodrange.wav";
+	PlaySound(sz_alarm,NULL,SND_FILENAME | SND_ASYNC);
 }
 //*******************************************************************************************************/
 //*******************************************************************************************************/
 void clPlot::DrawHFloatValue(CDC *dc,double val)
 {
-	static BOOL b_firstDraw=TRUE;
-
-	if(val==m_OldValue){
-		return;
-	}
-
-	CDC MemDC;
-	CBitmap *pOldMem;
+	//CClientDC *pdc=new CClientDC(this);
+	//CDC *pdc=GetDC();
+	//if(val==m_OldValue){
+	//	return;
+	//}
 	CPen *pOldPen;
-	CPen stick(PS_SOLID,0,RGB(255,255,0));
-	int y;
+	CPen stick(PS_SOLID,2,RGB(0,0,255));
+	int y=0;
 
-
-	if(b_firstDraw==FALSE){
-		// recovery old dc mem
-		//pOldMem=MemDC.SelectObject(&m_MemBak);
-		y = (int)(m_plotRect.bottom - ((m_OldValue-m_leftaxis.minrange)/m_leftaxis.m_dValuePrPixel));
-		dc->BitBlt(m_plotRect.left,y,m_plotRect.Width(),1,&MemDC,0,0,SRCCOPY);
-	}
-	else{ // draw new line
-		MemDC.CreateCompatibleDC(NULL);
-		m_MemBak.CreateCompatibleBitmap(dc,m_plotRect.Width(),m_plotRect.Height());
-		pOldMem=MemDC.SelectObject(&m_MemBak);
-		b_firstDraw=FALSE;
-	}
-	//backup first
-	y = (int)(m_plotRect.bottom - ((val-m_leftaxis.minrange)/m_leftaxis.m_dValuePrPixel));
-	MemDC.BitBlt(0,0,m_plotRect.Width(),1,dc,m_plotRect.left,y,SRCCOPY);
-
-	dc->BitBlt(50,100,m_plotRect.Width(),1,&MemDC,0,0,SRCCOPY);
 	//and draw new line
 	pOldPen=dc->SelectObject(&stick);
+	//pdc->SetROP2(R2_XORPEN);
+	y = (int)(m_plotRect.bottom - ((val-m_leftaxis.minrange)/m_leftaxis.m_dValuePrPixel));
+	printf("draw new line @ %d\n",y);
 	dc->MoveTo(m_plotRect.left,y);
 	dc->LineTo(m_plotRect.right,y);
+
+	/*
+	if(b_firstDraw==FALSE){		//backup
+
+		y = (int)(m_plotRect.bottom - ((m_OldValue-m_leftaxis.minrange)/m_leftaxis.m_dValuePrPixel));
+		printf("not first,backup old line @ %d\n",y);
+		pdc->MoveTo(m_plotRect.left,y);
+		pdc->LineTo(m_plotRect.right,y);	
+	}else{
+		printf("first\n");
+	}
+	*/
 	dc->SelectObject(pOldPen);
 
+	b_firstDraw=FALSE;
 	m_OldValue=val;
 
-	//m_MemBak.DeleteObject();
-	//MemDC.DeleteDC();
 }
 //*******************************************************************************************************/
 //*******************************************************************************************************/
 void clPlot::DrawGoodRange(CDC *dc)
 {
 	CPen *old;
-	CPen stick(PS_SOLID,0,RGB(0,255,0));
+	CPen stick(PS_SOLID,2,RGB(0,255,0));
 	int y = (int)(m_plotRect.bottom - ((GetGoodRange(0)-m_leftaxis.minrange)/m_leftaxis.m_dValuePrPixel));
 	old = dc->SelectObject(&stick); 
 	dc->MoveTo(CPoint(m_plotRect.left,y));
@@ -941,19 +975,28 @@ void clPlot::DrawGoodRange(CDC *dc)
 //*******************************************************************************************************/
 void clPlot::NewFloatValue(double val)
 {
+	printf("new float: ");
 	int y = (int)(m_plotRect.bottom - ((val-m_leftaxis.minrange)/m_leftaxis.m_dValuePrPixel));
 	CRect rect,rect2;
 	rect.left=m_plotRect.left;
-	rect.right=m_plotRect.bottom;
-	rect.top=y;
+	rect.right=m_plotRect.right;
+	rect.top=y-1;
 	rect.bottom=y+1;
 	InvalidateRect(rect);
+	printf("new pos@%d, ",y);
 
 	if(m_OldValue != 0){
 		rect2=rect;
 		y = (int)(m_plotRect.bottom - ((m_OldValue-m_leftaxis.minrange)/m_leftaxis.m_dValuePrPixel));
-		rect2.top=y;
+		rect2.top=y-1;
 		rect2.bottom=y+1;
 		InvalidateRect(rect2);
+		printf("old pos @%d \n",y);
 	}
+
+	if((val > GetGoodRange(0)) && (m_bGoodRange==TRUE)){
+		OnNotifyInGoodRange();
+	}
+	
+	m_newValue=val;
 }
