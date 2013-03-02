@@ -31,6 +31,7 @@ void CFocusAssit::DoDataExchange(CDataExchange* pDX)
 {
 	CDialog::DoDataExchange(pDX);
 	//{{AFX_DATA_MAP(CFocusAssit)
+	DDX_Control(pDX, IDC_COMBO_ALARM, m_plotAlarm);
 	DDX_Control(pDX, IDC_IPADDRESS1, m_ipAddr);
 	DDX_Control(pDX, IDC_LIST_TIPS, m_tips);
 	DDX_Text(pDX, IDC_EDIT_PORT, m_port);
@@ -47,9 +48,13 @@ BEGIN_MESSAGE_MAP(CFocusAssit, CDialog)
 	ON_WM_DESTROY()
 	ON_WM_SHOWWINDOW()
 	ON_WM_SIZE()
-	ON_WM_TIMER()
 	ON_WM_PAINT()
 	ON_WM_CTLCOLOR()
+	ON_WM_TIMER()
+	ON_NOTIFY(IPN_FIELDCHANGED, IDC_IPADDRESS1, OnFieldchangedIpaddress1)
+	ON_EN_CHANGE(IDC_EDIT_PORT, OnChangeEditPort)
+	ON_BN_CLICKED(IDC_BUTTON_CONNECT, OnButtonConnect)
+	ON_CBN_SELCHANGE(IDC_COMBO_ALARM, OnSelchangeComboAlarm)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
@@ -102,8 +107,8 @@ void CFocusAssit::OnShowWindow(BOOL bShow, UINT nStatus)
 	// TODO: Add your message handler code here
 	if (bShow)
 	{
-		//InitPreview();
-		m_focusview.preview(sz_DevIp,i_Port,"");
+		//m_focusview.preview(sz_DevIp,i_Port,"");
+		m_pConnThread=AfxBeginThread(ConnectProc,&m_focusview);
 	} 
 	else
 	{
@@ -163,11 +168,15 @@ BOOL CFocusAssit::OnInitDialog()
 	m_tips.AddString("3.点击开始微调按钮，并缓慢调整焦距");
 	m_tips.AddString("4.直至落到绿色区域时，调焦结束");
 	m_tips.AddString("5.点击结束微调按钮，结束调焦");
-	BYTE s[4];
-	//sscanf(sz_DevIp,"%[^.].%[^.].%[^.].%d",&s[0],&s[1],&s[2],&s[3]);
+
+	unsigned long iIp= inet_addr(sz_DevIp);
+	BYTE *s=(BYTE *)&iIp;
 	m_ipAddr.SetAddress(s[0],s[1],s[2],s[3]);
-	//m_port="80";
-	//UpdateData(FALSE);
+	char sz_port[10];
+	itoa(i_Port,sz_port,10);
+	m_port=sz_port;
+	m_plotAlarm.SetCurSel(1);
+	UpdateData(FALSE);
 	// init cplot
 	InitPlot();
 	
@@ -257,7 +266,7 @@ void CFocusAssit::InitPlot()
 	m_Plot.m_bGridV=FALSE;
 	m_Plot.m_bLegend=FALSE;
 
-	m_Plot.SetBXRange(CTime::GetCurrentTime()-CTimeSpan(20),CTime::GetCurrentTime());
+	m_Plot.SetBXRange(CTime::GetCurrentTime()-CTimeSpan(10),CTime::GetCurrentTime());
 
 	// recompute rect
 	m_Plot.ComputeRects(TRUE);
@@ -270,7 +279,7 @@ void CFocusAssit::InitPlot()
 
 void CFocusAssit::OnTimer(UINT nIDEvent)
 {
-#if 0
+/*
 	static BOOL pros={FALSE};
 	if(!pros){
 		pros=TRUE;
@@ -286,6 +295,46 @@ void CFocusAssit::OnTimer(UINT nIDEvent)
 
 		pros=FALSE;
 	}
-#endif
+	*/
 	CWnd::OnTimer(nIDEvent);
+}
+
+void CFocusAssit::OnFieldchangedIpaddress1(NMHDR* pNMHDR, LRESULT* pResult) 
+{
+	// TODO: Add your control notification handler code here
+	unsigned long iIp;
+	m_ipAddr.GetAddress(iIp);
+	struct in_addr inaddr;
+	inaddr.S_un.S_addr=htonl(iIp);
+	strcpy(sz_DevIp,inet_ntoa(inaddr));
+	printf("change ip:%s\n",sz_DevIp);
+	*pResult = 0;
+}
+
+void CFocusAssit::OnChangeEditPort() 
+{
+	// TODO: If this is a RICHEDIT control, the control will not
+	// send this notification unless you override the CDialog::OnInitDialog()
+	// function and call CRichEditCtrl().SetEventMask()
+	// with the ENM_CHANGE flag ORed into the mask.
+	
+	// TODO: Add your control notification handler code here
+	UpdateData(TRUE);
+	i_Port=atoi(m_port.GetBuffer(m_port.GetLength()));
+	printf("change port:%d\n",i_Port);
+}
+
+void CFocusAssit::OnButtonConnect() 
+{
+	// TODO: Add your control notification handler code here
+	m_focusview.Closeconn();
+	Sleep(500);
+	m_pConnThread=AfxBeginThread(ConnectProc,&m_focusview);
+
+}
+
+void CFocusAssit::OnSelchangeComboAlarm() 
+{
+	// TODO: Add your control notification handler code here
+	m_Plot.m_EnableAlarm= m_plotAlarm.GetCurSel();	
 }

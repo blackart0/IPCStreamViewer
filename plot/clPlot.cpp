@@ -171,6 +171,7 @@ clPlot::clPlot()
 	m_OldValue=0.0;
 	m_bSerieCapture		= FALSE;
 	m_bGoodRange		= FALSE;
+	m_EnableAlarm		= TRUE;
 
 	m_ctlBkColor		= RGB(255,255,255);
 	m_plotBkColor		= RGB(255,255,255);
@@ -426,7 +427,7 @@ void clPlot::Draw(CDC * dc)
 {
 	CFont *oFont = dc->SelectObject(&m_font);
 	//if(m_bSerieCapture==TRUE)
-	{
+	//{
 		DrawBasic(dc);
 		DrawGrid(dc);
 		DrawXAxis(dc);
@@ -435,7 +436,7 @@ void clPlot::Draw(CDC * dc)
 		if(m_bLegend==TRUE){
 			DrawLegend(dc);
 		}
-	}
+	//}
 	if(m_bGoodRange==TRUE){
 		DrawGoodRange(dc);
 		DrawHFloatValue(dc,m_newValue);
@@ -485,16 +486,18 @@ void clPlot::DrawSerie(CDC *dc,int s)
 	BOOL bRightAxis = m_series[s].m_bRightAxisAlign;
 	CPen pen(m_series[s].m_iLineStyle, 1, m_series[s].m_color);
 	CPen *old = dc->SelectObject(&pen);
+	//printf("begin:%d end:%d num:%d\n",y,m,a);
 	while(bMore){
 		bDraw=FALSE;
 		bMore=FALSE;
 		ly=0;
-		while(y != m && !bDraw){
-			if(m_series[s].m_pvalues[y].dValue == m_dNoData)
+		while(y != m && !bDraw ){// not last point and bDraw==false
+			if(m_series[s].m_pvalues[y].dValue == m_dNoData) 
 			{
 				bDraw = TRUE;
 				bMore = TRUE;
-			}else{
+			}else
+			{
 //				Scaling. We do scaling inline to save some time
 				time_t valuetime = m_series[s].m_pvalues[y].ValueTime.GetTime();
 				p.x = (int)(m_plotRect.left + ((valuetime-m_timeaxis.m_mintime.GetTime())/m_timeaxis.m_dSecondsPrPixel));
@@ -505,9 +508,18 @@ void clPlot::DrawSerie(CDC *dc,int s)
 					p.y = (int)(m_plotRect.bottom - ((m_series[s].m_pvalues[y].dValue-m_leftaxis.minrange)/m_leftaxis.m_dValuePrPixel));
 				}
 
-				if((ly == 0 || p.x != pLineArray[ly].x || p.y != pLineArray[ly].y)
+				if((ly == 0)	// first point
 					&& (p.x >= m_plotRect.left && p.x <= m_plotRect.right))
 				{
+					//printf("point %d @(%d,%d)\n",ly,p.x,p.y);
+					pLineArray[ly].x = p.x;
+					pLineArray[ly].y = p.y;
+					ly++;
+				}
+				else if((p.x != pLineArray[ly-1].x || p.y != pLineArray[ly-1].y) // not first point
+					&& (p.x >= m_plotRect.left && p.x <= m_plotRect.right))
+				{
+					//printf("point %d @(%d,%d)\n",ly,p.x,p.y);
 					pLineArray[ly].x = p.x;
 					pLineArray[ly].y = p.y;
 					ly++;
@@ -518,6 +530,7 @@ void clPlot::DrawSerie(CDC *dc,int s)
 				y=0;
 		}
 		if(ly > 0){
+			//printf("draw points:%d",ly);
 			dc->Polyline(pLineArray, ly);
 		}
 	}
@@ -758,7 +771,6 @@ BOOL clPlot::AddPoint(int serie, CTime &valuetime, double &value)
 		GetWindowRect(rc);
 		ScreenToClient(rc);
 		InvalidateRect(rc);
-		Invalidate();
 		return TRUE;
 	}
 	return FALSE;
@@ -891,7 +903,7 @@ void clPlot::ZoomOutPlot()
 //*******************************************************************************************************/
 double clPlot::GetGoodRange(int index) // value >= sepcific-value
 {
-	return m_series[index].GetMaxValue()-3;
+	return m_series[index].GetMaxValue()-5;
 }
 //*******************************************************************************************************/
 //*******************************************************************************************************/
@@ -975,6 +987,13 @@ void clPlot::DrawGoodRange(CDC *dc)
 //*******************************************************************************************************/
 void clPlot::NewFloatValue(double val)
 {
+	// redraw
+	CRect rc;
+	GetWindowRect(rc);
+	ScreenToClient(rc);
+	InvalidateRect(rc);
+
+	/*
 	printf("new float: ");
 	int y = (int)(m_plotRect.bottom - ((val-m_leftaxis.minrange)/m_leftaxis.m_dValuePrPixel));
 	CRect rect,rect2;
@@ -993,10 +1012,11 @@ void clPlot::NewFloatValue(double val)
 		InvalidateRect(rect2);
 		printf("old pos @%d \n",y);
 	}
+	*/
 
-	if((val > GetGoodRange(0)) && (m_bGoodRange==TRUE)){
+	if((val > GetGoodRange(0)) && (m_bGoodRange==TRUE) && (m_EnableAlarm==TRUE)){
 		OnNotifyInGoodRange();
 	}
-	
+
 	m_newValue=val;
 }

@@ -69,6 +69,7 @@ CIPCStreamViewDlg::CIPCStreamViewDlg(CWnd* pParent /*=NULL*/)
 	//}}AFX_DATA_INIT
 	// Note that LoadIcon does not require a subsequent DestroyIcon in Win32
 	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
+	m_selTab=0;
 }
 
 void CIPCStreamViewDlg::DoDataExchange(CDataExchange* pDX)
@@ -157,10 +158,11 @@ BOOL CIPCStreamViewDlg::OnInitDialog()
 	m_focusAssist.InitPreview();
 
 	//显示初始页面
-	m_dialogs[0]->ShowWindow(SW_SHOW);
+	m_dialogs[0]->ShowWindow(SW_HIDE);
 	m_dialogs[1]->ShowWindow(SW_HIDE);
+	m_dialogs[m_selTab]->ShowWindow(SW_SHOW);
 	//保存当前选择
-	m_selTab = 0;
+	//m_selTab = 0;
 		
 	return TRUE;  // return TRUE  unless you set the focus to a control
 }

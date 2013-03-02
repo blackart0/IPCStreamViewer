@@ -39,6 +39,7 @@ CIPCStreamViewApp theApp;
 /////////////////////////////////////////////////////////////////////////////
 // CIPCStreamViewApp initialization
 
+
 BOOL CIPCStreamViewApp::InitInstance()
 {
 	AfxEnableControlContainer();
@@ -54,8 +55,39 @@ BOOL CIPCStreamViewApp::InitInstance()
 	Enable3dControlsStatic();	// Call this when linking to MFC statically
 #endif
 
+	/*
+	parse command line
+	appname tabIndex ipaddr port blurAlgorithm
+	*/
+	int tabIndex=0;
+	int blurAlgorithm=0;
+	if(__argc>1){
+		for(int i=0;i<__argc;i++){
+			switch (i)
+			{
+			case 0:
+				break;
+			case 1:
+				tabIndex=atoi(__argv[1]);
+				break;
+			case 2:
+				strcpy(sz_DevIp,__argv[2]);
+				break;
+			case 3:
+				i_Port=atoi(__argv[3]);
+				break;
+			case 4:
+				blurAlgorithm=atoi(__argv[4]);
+				break;
+			default:break;
+			}
+		}
+	}
+
 	CIPCStreamViewDlg dlg;
 	m_pMainWnd = &dlg;
+	dlg.m_selTab=tabIndex;
+	dlg.m_focusAssist.m_focusview.m_Dec.m_blurjudge.SetJudgeProc(blurAlgorithm);
 	int nResponse = dlg.DoModal();
 	if (nResponse == IDOK)
 	{

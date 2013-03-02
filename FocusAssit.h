@@ -21,6 +21,8 @@ public:
 	clPlot m_Plot;
 	BOOL canSize;
 	CViewWnd m_focusview;
+
+	CWinThread* m_pConnThread;
 // Construction
 public:
 	CFocusAssit(CWnd* pParent = NULL);   // standard constructor
@@ -34,6 +36,7 @@ protected:
 // Dialog Data
 	//{{AFX_DATA(CFocusAssit)
 	enum { IDD = IDD_DIALOG_FOCUS_ASSIST };
+	CComboBox	m_plotAlarm;
 	CIPAddressCtrl	m_ipAddr;
 	CListBox	m_tips;
 	CString	m_port;
@@ -66,6 +69,10 @@ protected:
 	afx_msg HBRUSH OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor);
 	afx_msg void OnTimer(UINT nIDEvent);
 	afx_msg BOOL OnEraseBkgnd(CDC* pDC);
+	afx_msg void OnFieldchangedIpaddress1(NMHDR* pNMHDR, LRESULT* pResult);
+	afx_msg void OnChangeEditPort();
+	afx_msg void OnButtonConnect();
+	afx_msg void OnSelchangeComboAlarm();
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 };

@@ -78,7 +78,7 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 /nologo /subsystem:windows /debug /machine:I386 /pdbtype:sept
-# ADD LINK32 ddraw.lib dxguid.lib NetSdk.lib hi_h264dec_w.lib plot/Debug/clPlot.lib /nologo /subsystem:windows /debug /machine:I386 /pdbtype:sept
+# ADD LINK32 icmp.lib ddraw.lib dxguid.lib NetSdk.lib hi_h264dec_w.lib plot/Debug/clPlot.lib /nologo /subsystem:windows /debug /machine:I386 /pdbtype:sept
 # Begin Special Build Tool
 OutDir=.\Debug
 SOURCE="$(InputPath)"
@@ -124,6 +124,10 @@ SOURCE=.\h264decode.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\icmpecho.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\IPCStreamView.cpp
 # End Source File
 # Begin Source File
@@ -153,11 +157,19 @@ SOURCE=.\ViewWnd.cpp
 # PROP Default_Filter "h;hpp;hxx;hm;inl"
 # Begin Source File
 
+SOURCE=D:\DX90SDK\Include\basetsd.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\BlurJudge.h
 # End Source File
 # Begin Source File
 
 SOURCE=.\ClientA.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\plot\clPlot.h
 # End Source File
 # Begin Source File
 
@@ -189,6 +201,14 @@ SOURCE=.\hi_h264api.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\IcmpAPI.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\icmpecho.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\IPCStreamView.h
 # End Source File
 # Begin Source File
@@ -197,7 +217,15 @@ SOURCE=.\IPCStreamViewDlg.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\IPExport.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\NetData.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\netpacket.h
 # End Source File
 # Begin Source File
 
@@ -214,6 +242,10 @@ SOURCE=.\Resource.h
 # Begin Source File
 
 SOURCE=.\StdAfx.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\ViewWnd.h
 # End Source File
 # End Group
 # Begin Group "Resource Files"

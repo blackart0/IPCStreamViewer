@@ -20,13 +20,14 @@ class CIPCStreamViewDlg : public CDialog
 // Construction
 //private:
 //	CViewWnd m_streamview;
-private:
-	int m_selTab;
+public:
 	CPreview m_preview;
 	CFocusAssit m_focusAssist;
 	CDialog *m_dialogs[2];
 
 public:
+	int m_selTab;
+
 	CIPCStreamViewDlg(CWnd* pParent = NULL);	// standard constructor
 
 // Dialog Data

@@ -9,9 +9,12 @@
 
 #include "ClientA.h"
 #include "H264Decode.h"
+#include "icmpecho.h"
 
-extern char *sz_DevIp;
+extern char sz_DevIp[16];
 extern unsigned i_Port;
+extern bool	m_toggle;//connect thread
+
 /////////////////////////////////////////////////////////////////////////////
 // CViewWnd window
 
@@ -25,13 +28,16 @@ public:
 public:
 	CH264Decode m_Dec;
 
-private:
 	CClientA m_ClientSock;
+	CIcmpEcho m_ping;
+	bool		m_connected;
+private:
 	bool	m_bOpenedChl;
 	char	m_sAddress[128];
 	char	m_sEseeId[64];
 	unsigned short m_nPort;
 	int		m_nDevId;
+
 // Operations
 public:
 
@@ -43,11 +49,15 @@ public:
 // Implementation
 public:
 	virtual ~CViewWnd();
+	bool	GetNetworkConnectState();
+
 	int		ConnectToServer(char *sIp,unsigned short nPort,char *sEseeId,int nDevId);
 	int		OpenChannel(int nChannel,bool bOpen);
 	void    Closeconn();
 	void    SetNetPara(char *ip, unsigned short port);
 	void    preview(char *ip, unsigned short port, char *eseeid);
+	void	ClearPreviewArea();
+
 	// Generated message map functions
 protected:
 	//{{AFX_MSG(CViewWnd)
@@ -57,6 +67,8 @@ protected:
 
 	DECLARE_MESSAGE_MAP()
 };
+
+UINT	ConnectProc(LPVOID pParam);
 
 /////////////////////////////////////////////////////////////////////////////
 

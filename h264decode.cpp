@@ -198,8 +198,8 @@ BOOL CH264Decode::InitOffscreenSurface()
 	ddsd.dwSize = sizeof(DDSURFACEDESC2);
 	ddsd.dwFlags = DDSD_CAPS | DDSD_WIDTH | DDSD_HEIGHT | DDSD_PIXELFORMAT;
 	ddsd.ddsCaps.dwCaps = DDSCAPS_OFFSCREENPLAIN  | DDSCAPS_LIVEVIDEO  | DDSCAPS_SYSTEMMEMORY/*| DDSCAPS_VIDEOMEMORY*/;
-	ddsd.dwWidth = 352;
-	ddsd.dwHeight = 288;
+	ddsd.dwWidth = 1280;
+	ddsd.dwHeight = 720;
 	ddsd.ddpfPixelFormat.dwSize = sizeof(DDPIXELFORMAT);
 	ddsd.ddpfPixelFormat.dwFlags = DDPF_RGB;
 	ddsd.ddpfPixelFormat.dwFourCC = 0;

@@ -14,6 +14,7 @@ class CPreview : public CDialog
 {
 public:
 	CViewWnd m_streamview;
+	CWinThread* m_pConnThread;
 
 // Construction
 public:
@@ -44,6 +45,8 @@ protected:
 	afx_msg void OnSize(UINT nType, int cx, int cy);
 	afx_msg void OnDestroy();
 	virtual BOOL OnInitDialog();
+	afx_msg void OnPaint();
+	afx_msg HBRUSH OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor);
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 };

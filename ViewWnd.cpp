@@ -12,17 +12,23 @@
 static char THIS_FILE[] = __FILE__;
 #endif
 
-char *sz_DevIp="192.168.1.22";
+char sz_DevIp[16]="192.168.1.22";
 unsigned i_Port=80;
+bool m_toggle=true;
+
 /////////////////////////////////////////////////////////////////////////////
 // CViewWnd
 
 CViewWnd::CViewWnd()
 {
+	m_connected=false;
+	m_toggle=true;
 }
 
 CViewWnd::~CViewWnd()
 {
+	m_connected=false;
+	m_toggle=false;
 	//m_Dec.DeinitDec();
 }
 
@@ -57,6 +63,7 @@ int CViewWnd::OpenChannel(int nChannel,bool bOpen)
 void CViewWnd::Closeconn() 
 {
 	// TODO: Add your command handler code here
+	m_toggle=false;
 	if (m_ClientSock.GetConnectStatus())
 	{
 		m_ClientSock.CloseAll();
@@ -107,6 +114,7 @@ int CViewWnd::ConnectToServer(char *sIp,unsigned short nPort,char *sEseeId, int 
 	int nRet = m_ClientSock.ConnectToServer(sConIp,nPort,2);
 	if (0 != nRet)
 	{
+		printf("connect failed\n");
 		memset(m_sAddress,0,sizeof(m_sAddress));
 		memset(m_sEseeId,-1,sizeof(m_sEseeId));
 		sprintf(m_ClientSock.m_sAddress,"0.0.0.0");
@@ -154,3 +162,60 @@ void CViewWnd::preview(char *ip, unsigned short port, char *eseeid)
 	ConnectToServer(ip, port, eseeid, 0);
 	OpenChannel(0, true);
 }
+
+void CViewWnd::ClearPreviewArea()
+{
+	CRect rect;
+	GetWindowRect(&rect);
+	ScreenToClient(&rect);
+	InvalidateRect(&rect);
+}
+
+bool CViewWnd::GetNetworkConnectState()
+{
+	return m_connected;
+}
+
+UINT ConnectProc(LPVOID pParam)
+{	
+	int ret;
+	CViewWnd *viewwnd=(CViewWnd *)pParam;
+	if(viewwnd==NULL /*|| !viewwnd->IsKindOf(RUNTIME_CLASS(CViewWnd)) */){
+		return 1;
+	}
+	m_toggle=true;
+	printf("create thread success.\n");
+	while(m_toggle){
+		if((ret=viewwnd->m_ping.PingHost(viewwnd->m_ping.ResolveIP(sz_DevIp),10))>=10)
+		{
+			printf("ping timeout:%d\n",ret);
+			viewwnd->m_connected=false;
+			viewwnd->ClearPreviewArea();
+			continue;
+		}
+		else{// connected
+			printf("ping ret:%d\n",ret);
+			viewwnd->m_connected=true;
+		}
+		if (viewwnd->m_ClientSock.GetConnectStatus())// connected
+		{
+			Sleep(1000);
+			continue;
+		}
+		else{
+			ret=viewwnd->ConnectToServer(sz_DevIp, i_Port, "", 0);
+			viewwnd->OpenChannel(0, true);
+			if(ret==0){// connected success
+				Sleep(1000);
+			}
+			else{
+				printf("connecting failed\n");
+				viewwnd->ClearPreviewArea();
+			}
+		}
+	}
+	printf("exit thread success.\n");
+	return 0;
+}
+
+

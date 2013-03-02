@@ -110,13 +110,15 @@ BEGIN
     PUSHBUTTON      "开始微调",IDC_BUTTON_START_FOCUS,285,210,45,15
     PUSHBUTTON      "结束微调",IDC_BUTTON_STOP_FOCUS2,335,210,45,15
     CONTROL         "IPAddress1",IDC_IPADDRESS1,"SysIPAddress32",WS_TABSTOP,
-                    45,241,95,15
-    LTEXT           "IP地址",IDC_STATIC_IP_ADDRESS,15,244,30,10
-    LTEXT           "端口",IDC_STATIC_PORT,150,244,25,10
-    EDITTEXT        IDC_EDIT_PORT,175,241,50,15,ES_AUTOHSCROLL
-    PUSHBUTTON      "连接/预览",IDC_BUTTON_CONNECT,240,242,50,15
-    PUSHBUTTON      "关闭",IDC_BUTTON_CLOSE,330,242,50,15
+                    152,242,82,15
+    LTEXT           "IP地址",IDC_STATIC_IP_ADDRESS,120,244,30,10
+    LTEXT           "端口",IDC_STATIC_PORT,242,244,25,10
+    EDITTEXT        IDC_EDIT_PORT,268,242,30,15,ES_AUTOHSCROLL
+    PUSHBUTTON      "连接/预览",IDC_BUTTON_CONNECT,320,242,50,15
     GROUPBOX        "",IDC_STATIC_INFO,10,235,375,25,BS_FLAT
+    COMBOBOX        IDC_COMBO_ALARM,50,242,45,60,CBS_DROPDOWN | CBS_SORT | 
+                    WS_VSCROLL | WS_TABSTOP
+    LTEXT           "声音提示",IDC_STATIC_ALARM,12,245,35,8
 END
 
 IDD_DIALOG_PREVIEW DIALOG DISCARDABLE  0, 0, 354, 246
@@ -210,6 +212,21 @@ BEGIN
     END
 END
 #endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog Info
+//
+
+IDD_DIALOG_FOCUS_ASSIST DLGINIT
+BEGIN
+    IDC_COMBO_ALARM, 0x403, 5, 0
+0xd8b9, 0xd5b1, "\000" 
+    IDC_COMBO_ALARM, 0x403, 5, 0
+0xaabf, 0xf4c6, "\000" 
+    0
+END
 
 
 /////////////////////////////////////////////////////////////////////////////

@@ -19,6 +19,8 @@ public:
 	~BlurJudge();
 	
 	void SetJudgeProc(BlurJudgeProc proc);
+	void SetJudgeProc(int index);
+	//void SetJudgeProc(char *name);
 	BlurJudgeProc GetJudgeProc();
 	
 	void SetData(BYTE *ydata,int w,int h);

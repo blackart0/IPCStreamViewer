@@ -29,6 +29,45 @@ double MeanSquareDeviation(BYTE *ydata,int w,int h)
 	return MSD;
 }
 
+double TenClarityEvaluation(BYTE *bpImg,int w,int h)
+{//Tenengrad函数判别
+	int Sx=0;
+	int Sy=0;
+	double Img=0;
+	double T0=0;
+	BYTE *A,*B,*C,*D,*E,*F,*G,*H,*R1,*R2,*R3;
+	int x,y;
+	for(y=1;y<h-1;y++)
+    {  R1=bpImg+y*w;
+	R2=bpImg+(y-1)*w;
+	R3=bpImg+(y+1)*w;
+	for(x=1;x<w-1;x++)
+	{
+        A=(BYTE*)(R2+(x+1)*3);
+        B=(BYTE*)(R3+(x+1)*3);
+        C=(BYTE*)(R2+(x-1)*3);
+        D=(BYTE*)(R3+(x-1)*3);
+        E=(BYTE*)(R1+(x+1)*3);
+        F=(BYTE*)(R1+(x-1)*3);
+        G=(BYTE*)(R3+x*3);
+        H=(BYTE*)(R2+x*3);
+        Sx=*A-*B-*C-*D+(*E+*E)-(*F+*F);
+        Sy=*D+*B-*C-*A+(*G+*G)-(*H+*H);
+        Img+=sqrt(Sx*Sx+Sy*Sy);
+	}
+    }
+    T0=sqrt(Img);
+	
+	T0=(T0-15000);
+	if(T0<0) T0=0;
+	if(T0>3000) T0=3000;
+	T0=(3000-T0)/30;
+	
+	printf("TenClarityEvaluation n:%d T:%lf\n",w*h,T0);
+	return T0;
+}
+
+
 double  GradClarityEvaluation(BYTE *bpImg,int w,int h)
 {
 	//梯度向量模方和	// not bad
@@ -62,43 +101,6 @@ double  GradClarityEvaluation(BYTE *bpImg,int w,int h)
 	return Z0;
 }
 
-double TenClarityEvaluation(BYTE *bpImg,int w,int h)
-{//Tenengrad函数判别
-	int Sx=0;
-	int Sy=0;
-	double Img=0;
-	double T0=0;
-	BYTE *A,*B,*C,*D,*E,*F,*G,*H,*R1,*R2,*R3;
-	int x,y;
-	for(y=1;y<h-1;y++)
-    {  R1=bpImg+y*w;
-	R2=bpImg+(y-1)*w;
-	R3=bpImg+(y+1)*w;
-	for(x=1;x<w-1;x++)
-	{
-        A=(BYTE*)(R2+(x+1)*3);
-        B=(BYTE*)(R3+(x+1)*3);
-        C=(BYTE*)(R2+(x-1)*3);
-        D=(BYTE*)(R3+(x-1)*3);
-        E=(BYTE*)(R1+(x+1)*3);
-        F=(BYTE*)(R1+(x-1)*3);
-        G=(BYTE*)(R3+x*3);
-        H=(BYTE*)(R2+x*3);
-        Sx=*A-*B-*C-*D+(*E+*E)-(*F+*F);
-        Sy=*D+*B-*C-*A+(*G+*G)-(*H+*H);
-        Img+=sqrt(Sx*Sx+Sy*Sy);
-	}
-    }
-    T0=sqrt(Img);
-
-	T0=(T0-15000);
-	if(T0<0) T0=0;
-	if(T0>3000) T0=3000;
-	T0=(3000-T0)/30;
-
-	printf("TenClarityEvaluation n:%d T:%lf\n",w*h,T0);
-	return T0;
-}
 
 double LapClarityEvaluation(BYTE *bpImg,int w,int h) 
 {//laplace函数判别 //not bad
@@ -131,7 +133,7 @@ double LapClarityEvaluation(BYTE *bpImg,int w,int h)
 	return Z0;
 }
 
-double  SharpnessAlgorithm(BYTE* bpImg ,int w,int h)
+double  SharpnessEvaluation(BYTE* bpImg ,int w,int h)
 {//点锐度算法 // not bad
 	int x,y;
     int Img=0;
@@ -171,12 +173,39 @@ double  SharpnessAlgorithm(BYTE* bpImg ,int w,int h)
 
 	return Z0;
 }
+
+double EnergyEvaluation(BYTE*bpImg,int w,int h)
+{//能量梯度函数
+	int Img=0;
+	double Z0=0;
+	int x,y;
+	BYTE *A,*B,*C,*R1,*R2,*R3;
+	for(y=0;y<h-1;y++)
+    {
+		R1=bpImg+y*w;
+		R2=bpImg+(y+1)*w;
+		for(x=0;x<w-1;x++)
+		{
+			A=(BYTE*)(R1+x*3);
+			B=(BYTE*)(R1+(x+1)*3);
+			C=(BYTE*)(R2+x*3);
+			Img+=(*B-*A)*(*B-*A)+(*C-*A)*(*C-*A);
+		}
+	}
+	Z0=sqrt(Img);
+	//fix to 0~100
+	Z0=(Z0-12000)/100;
+	printf("EnergyEvaluation n:%d T:%lf\n",w*h,Z0);
+
+	return Z0;
+}
+
 /*************************************************************************************
 *** class: BlurJuge Implement
 *************************************************************************************/
 BlurJudge::BlurJudge()
 {
-	proc=SharpnessAlgorithm;
+	proc=GradClarityEvaluation;
 	m_plot=NULL;
 }
 
@@ -201,6 +230,22 @@ void BlurJudge::SetPlot(clPlot *plot)
 void BlurJudge::SetJudgeProc(BlurJudgeProc proc)
 {
 	this->proc=proc;
+}
+
+void BlurJudge::SetJudgeProc(int index)
+{
+	BlurJudgeProc procs[]=
+	{
+		GradClarityEvaluation,
+		LapClarityEvaluation,
+		SharpnessEvaluation,
+		EnergyEvaluation,
+	};
+	if (index >= 4)
+	{
+		index=0;
+	}
+	proc=procs[index];
 }
 
 BlurJudgeProc BlurJudge::GetJudgeProc()

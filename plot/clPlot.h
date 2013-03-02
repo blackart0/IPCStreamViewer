@@ -243,6 +243,7 @@ public:
 	double			m_newValue;
 	double			m_OldValue;
 	BOOL			m_bGoodRange;
+	BOOL			m_EnableAlarm;
 	virtual void	NewFloatValue(double val);
 	virtual double	GetGoodRange(int index);
 	virtual void	DrawGoodRange(CDC * dc);

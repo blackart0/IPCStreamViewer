@@ -39,6 +39,8 @@ BEGIN_MESSAGE_MAP(CPreview, CDialog)
 	ON_WM_SHOWWINDOW()
 	ON_WM_SIZE()
 	ON_WM_DESTROY()
+	ON_WM_PAINT()
+	ON_WM_CTLCOLOR()
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
@@ -61,7 +63,8 @@ void CPreview::OnShowWindow(BOOL bShow, UINT nStatus)
 	// TODO: Add your message handler code here
 	if (bShow)
 	{
-		m_streamview.preview(sz_DevIp,i_Port,"");
+		m_pConnThread=AfxBeginThread(ConnectProc,&m_streamview);
+		//m_streamview.preview(sz_DevIp,i_Port,"");
 	} 
 	else
 	{
@@ -116,4 +119,29 @@ void CPreview::InitPreview()
 	CRect rect=GetPreviewRect();
 	
 	m_streamview.Create(_T(""), WS_VISIBLE | SS_NOTIFY | SS_CENTER , rect, this, 5);
+}
+
+void CPreview::OnPaint() 
+{
+	CPaintDC dc(this); // device context for painting
+	
+	// TODO: Add your message handler code here
+
+	// Do not call CDialog::OnPaint() for painting messages
+}
+
+HBRUSH CPreview::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor) 
+{
+	HBRUSH hbr = CDialog::OnCtlColor(pDC, pWnd, nCtlColor);
+	
+	// TODO: Change any attributes of the DC here
+	if(nCtlColor==CTLCOLOR_STATIC)
+	{
+		pDC->SetTextColor(RGB(255,255,255));
+		pDC->SetBkColor(RGB(0,0,0));
+		HBRUSH b=CreateSolidBrush(RGB(0,0,0));
+		return b;
+	}
+	// TODO: Return a different brush if the default is not desired
+	return hbr;
 }
