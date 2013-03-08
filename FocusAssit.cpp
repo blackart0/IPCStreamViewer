@@ -165,8 +165,8 @@ BOOL CFocusAssit::OnInitDialog()
 	// TODO: Add extra initialization here		
 	m_tips.AddString("1.请将摄像头的焦距调到最小");
 	m_tips.AddString("2.点击采样按钮，并将焦距缓慢调至最大");
-	m_tips.AddString("3.点击开始微调按钮，并缓慢调整焦距");
-	m_tips.AddString("4.直至落到绿色区域时，调焦结束");
+	m_tips.AddString("3.点击开始微调按钮，并反方向缓慢调整焦距");
+	m_tips.AddString("4.直至落到绿线上方时，获得该场景下的最佳焦距");
 	m_tips.AddString("5.点击结束微调按钮，结束调焦");
 
 	unsigned long iIp= inet_addr(sz_DevIp);
@@ -179,7 +179,10 @@ BOOL CFocusAssit::OnInitDialog()
 	UpdateData(FALSE);
 	// init cplot
 	InitPlot();
-	
+	//
+	m_Plot.m_EnableAlarm =GetPrivateProfileIntA(szApp,"EnalbeAlarm",1,szINI);
+	m_Plot.m_Duration=GetPrivateProfileIntA(szApp,"BlurDuration",5,szINI);
+	m_plotAlarm.SetCurSel(m_Plot.m_EnableAlarm);
 
 	return TRUE;  // return TRUE unless you set the focus to a control
 	              // EXCEPTION: OCX Property Pages should return FALSE
@@ -330,11 +333,13 @@ void CFocusAssit::OnButtonConnect()
 	m_focusview.Closeconn();
 	Sleep(500);
 	m_pConnThread=AfxBeginThread(ConnectProc,&m_focusview);
-
 }
 
 void CFocusAssit::OnSelchangeComboAlarm() 
 {
 	// TODO: Add your control notification handler code here
-	m_Plot.m_EnableAlarm= m_plotAlarm.GetCurSel();	
+	m_Plot.m_EnableAlarm= m_plotAlarm.GetCurSel();
+	char tmp[10];
+	itoa(m_Plot.m_EnableAlarm,tmp,10);
+	WritePrivateProfileStringA(szApp,"EnalbeAlarm",tmp,szINI);
 }

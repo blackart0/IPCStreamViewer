@@ -56,11 +56,20 @@ BOOL CIPCStreamViewApp::InitInstance()
 #endif
 
 	/*
+	parse configure ini file
+	*/
+	char szBlurAlgorithm[32];
+	char tmp[32];
+	GetPrivateProfileString(szApp,"DevIP","192.168.1.168",sz_DevIp,sizeof(sz_DevIp),szINI);
+	GetPrivateProfileString(szApp,"DevPort","80",tmp,sizeof(tmp),szINI);
+	i_Port=atoi(tmp);
+	GetPrivateProfileString(szApp,"BlurAlgorithm","sharpness",szBlurAlgorithm,sizeof(szBlurAlgorithm),szINI);
+	/*
 	parse command line
 	appname tabIndex ipaddr port blurAlgorithm
 	*/
 	int tabIndex=0;
-	int blurAlgorithm=0;
+	//int blurAlgorithm=0;
 	if(__argc>1){
 		for(int i=0;i<__argc;i++){
 			switch (i)
@@ -77,7 +86,8 @@ BOOL CIPCStreamViewApp::InitInstance()
 				i_Port=atoi(__argv[3]);
 				break;
 			case 4:
-				blurAlgorithm=atoi(__argv[4]);
+				//blurAlgorithm=atoi(__argv[4]);
+				strcpy(szBlurAlgorithm,__argv[4]);
 				break;
 			default:break;
 			}
@@ -87,7 +97,7 @@ BOOL CIPCStreamViewApp::InitInstance()
 	CIPCStreamViewDlg dlg;
 	m_pMainWnd = &dlg;
 	dlg.m_selTab=tabIndex;
-	dlg.m_focusAssist.m_focusview.m_Dec.m_blurjudge.SetJudgeProc(blurAlgorithm);
+	dlg.m_focusAssist.m_focusview.m_Dec.m_blurjudge.SetJudgeProc(szBlurAlgorithm);
 	int nResponse = dlg.DoModal();
 	if (nResponse == IDOK)
 	{

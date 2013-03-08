@@ -29,7 +29,7 @@ double MeanSquareDeviation(BYTE *ydata,int w,int h)
 	return MSD;
 }
 
-double TenClarityEvaluation(BYTE *bpImg,int w,int h)
+double TenengradEvaluation(BYTE *bpImg,int w,int h)
 {//Tenengrad函数判别
 	int Sx=0;
 	int Sy=0;
@@ -68,7 +68,7 @@ double TenClarityEvaluation(BYTE *bpImg,int w,int h)
 }
 
 
-double  GradClarityEvaluation(BYTE *bpImg,int w,int h)
+double  GradientEvaluation(BYTE *bpImg,int w,int h)
 {
 	//梯度向量模方和	// not bad
 	double Gk=0;
@@ -102,7 +102,7 @@ double  GradClarityEvaluation(BYTE *bpImg,int w,int h)
 }
 
 
-double LapClarityEvaluation(BYTE *bpImg,int w,int h) 
+double LaplaceEvaluation(BYTE *bpImg,int w,int h) 
 {//laplace函数判别 //not bad
     double L=0;
     //int MaxL=0;
@@ -205,7 +205,7 @@ double EnergyEvaluation(BYTE*bpImg,int w,int h)
 *************************************************************************************/
 BlurJudge::BlurJudge()
 {
-	proc=GradClarityEvaluation;
+	proc=SharpnessEvaluation;
 	m_plot=NULL;
 }
 
@@ -236,8 +236,8 @@ void BlurJudge::SetJudgeProc(int index)
 {
 	BlurJudgeProc procs[]=
 	{
-		GradClarityEvaluation,
-		LapClarityEvaluation,
+		GradientEvaluation,
+		LaplaceEvaluation,
 		SharpnessEvaluation,
 		EnergyEvaluation,
 	};
@@ -246,6 +246,21 @@ void BlurJudge::SetJudgeProc(int index)
 		index=0;
 	}
 	proc=procs[index];
+}
+
+void BlurJudge::SetJudgeProc(char *name)
+{
+	if(stricmp(name,"gradient")==0){
+		proc=GradientEvaluation;
+	}else if(stricmp(name,"lapace")==0){
+		proc=LaplaceEvaluation;
+	}else if(stricmp(name,"sharpness")==0){
+		proc=SharpnessEvaluation;
+	}else if(stricmp(name,"energy")==0){
+		proc=EnergyEvaluation;
+	}else{
+		proc=SharpnessEvaluation;
+	}
 }
 
 BlurJudgeProc BlurJudge::GetJudgeProc()

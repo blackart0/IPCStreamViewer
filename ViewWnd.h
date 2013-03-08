@@ -11,6 +11,8 @@
 #include "H264Decode.h"
 #include "icmpecho.h"
 
+extern CString szApp;
+extern CString szINI;
 extern char sz_DevIp[16];
 extern unsigned i_Port;
 extern bool	m_toggle;//connect thread

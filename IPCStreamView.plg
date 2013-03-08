@@ -3,11 +3,75 @@
 <pre>
 <h1>Build Log</h1>
 <h3>
+--------------------Configuration: plot - Win32 Debug--------------------
+</h3>
+<h3>Command Lines</h3>
+Creating command line "rc.exe /l 0x414 /fo"Debug/plot.res" /d "_DEBUG" /d "_AFXDLL" "E:\codes\IPCStreamView\plot\plot.rc"" 
+Creating temporary file "C:\DOCUME~1\ADMINI~1\LOCALS~1\Temp\RSP3E21.tmp" with contents
+[
+/nologo /MDd /W3 /Gm /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /D "_WINDLL" /D "_AFXDLL" /D "_AFXEXT" /Fp"Debug/plot.pch" /Yu"stdafx.h" /Fo"Debug/" /Fd"Debug/" /FD /c 
+"E:\codes\IPCStreamView\plot\clPlot.cpp"
+"E:\codes\IPCStreamView\plot\plot.cpp"
+]
+Creating command line "cl.exe @C:\DOCUME~1\ADMINI~1\LOCALS~1\Temp\RSP3E21.tmp" 
+Creating temporary file "C:\DOCUME~1\ADMINI~1\LOCALS~1\Temp\RSP3E22.tmp" with contents
+[
+/nologo /MDd /W3 /Gm /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /D "_WINDLL" /D "_AFXDLL" /D "_AFXEXT" /Fp"Debug/plot.pch" /Yc"stdafx.h" /Fo"Debug/" /Fd"Debug/" /FD /c 
+"E:\codes\IPCStreamView\plot\StdAfx.cpp"
+]
+Creating command line "cl.exe @C:\DOCUME~1\ADMINI~1\LOCALS~1\Temp\RSP3E22.tmp" 
+Creating temporary file "C:\DOCUME~1\ADMINI~1\LOCALS~1\Temp\RSP3E23.tmp" with contents
+[
+/nologo /subsystem:windows /dll /incremental:yes /pdb:"Debug/clPlot.pdb" /debug /machine:I386 /def:".\plot.def" /out:"..\clPlot.dll" /implib:"Debug/clPlot.lib" /pdbtype:sept 
+.\Debug\clPlot.obj
+.\Debug\plot.obj
+.\Debug\StdAfx.obj
+.\Debug\plot.res
+]
+Creating command line "link.exe @C:\DOCUME~1\ADMINI~1\LOCALS~1\Temp\RSP3E23.tmp"
+<h3>Output Window</h3>
+Compiling resources...
+Compiling...
+StdAfx.cpp
+Compiling...
+clPlot.cpp
+plot.cpp
+Generating Code...
+Linking...
+   Creating library Debug/clPlot.lib and object Debug/clPlot.exp
+<h3>
 --------------------Configuration: IPCStreamView - Win32 Debug--------------------
 </h3>
 <h3>Command Lines</h3>
 Creating command line "rc.exe /l 0x804 /fo"Debug/IPCStreamView.res" /d "_DEBUG" /d "_AFXDLL" "E:\codes\IPCStreamView\IPCStreamView.rc"" 
-Creating temporary file "C:\DOCUME~1\ADMINI~1\LOCALS~1\Temp\RSP2C8F.tmp" with contents
+Creating temporary file "C:\DOCUME~1\ADMINI~1\LOCALS~1\Temp\RSP3E27.tmp" with contents
+[
+/nologo /MDd /W3 /Gm /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /D "_MBCS" /D "_AFXDLL" /D "_WINDLL" /FR"Debug/" /Fp"Debug/IPCStreamView.pch" /Yu"stdafx.h" /Fo"Debug/" /Fd"Debug/" /FD /GZ /c 
+"E:\codes\IPCStreamView\BlurJudge.cpp"
+"E:\codes\IPCStreamView\ClientA.cpp"
+"E:\codes\IPCStreamView\Decoder.cpp"
+"E:\codes\IPCStreamView\FocusAssit.cpp"
+"E:\codes\IPCStreamView\font.cpp"
+"E:\codes\IPCStreamView\gfun.cpp"
+"E:\codes\IPCStreamView\h264decode.cpp"
+"E:\codes\IPCStreamView\icmpecho.cpp"
+"E:\codes\IPCStreamView\IPCStreamView.cpp"
+"E:\codes\IPCStreamView\IPCStreamViewDlg.cpp"
+"E:\codes\IPCStreamView\Preview.cpp"
+"E:\codes\IPCStreamView\ViewWnd.cpp"
+"E:\codes\IPCStreamView\tinyxml\tinystr.cpp"
+"E:\codes\IPCStreamView\tinyxml\tinyxml.cpp"
+"E:\codes\IPCStreamView\tinyxml\tinyxmlerror.cpp"
+"E:\codes\IPCStreamView\tinyxml\tinyxmlparser.cpp"
+]
+Creating command line "cl.exe @C:\DOCUME~1\ADMINI~1\LOCALS~1\Temp\RSP3E27.tmp" 
+Creating temporary file "C:\DOCUME~1\ADMINI~1\LOCALS~1\Temp\RSP3E28.tmp" with contents
+[
+/nologo /MDd /W3 /Gm /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /D "_MBCS" /D "_AFXDLL" /D "_WINDLL" /FR"Debug/" /Fp"Debug/IPCStreamView.pch" /Yc"stdafx.h" /Fo"Debug/" /Fd"Debug/" /FD /GZ /c 
+"E:\codes\IPCStreamView\StdAfx.cpp"
+]
+Creating command line "cl.exe @C:\DOCUME~1\ADMINI~1\LOCALS~1\Temp\RSP3E28.tmp" 
+Creating temporary file "C:\DOCUME~1\ADMINI~1\LOCALS~1\Temp\RSP3E29.tmp" with contents
 [
 icmp.lib ddraw.lib dxguid.lib NetSdk.lib hi_h264dec_w.lib plot/Debug/clPlot.lib /nologo /subsystem:windows /incremental:yes /pdb:"Debug/IPCStreamView.pdb" /debug /machine:I386 /out:"Debug/IPCStreamView.exe" /pdbtype:sept 
 .\Debug\BlurJudge.obj
@@ -30,26 +94,64 @@ icmp.lib ddraw.lib dxguid.lib NetSdk.lib hi_h264dec_w.lib plot/Debug/clPlot.lib 
 .\Debug\IPCStreamView.res
 .\plot\Debug\clPlot.lib
 ]
-Creating command line "link.exe @C:\DOCUME~1\ADMINI~1\LOCALS~1\Temp\RSP2C8F.tmp"
+Creating command line "link.exe @C:\DOCUME~1\ADMINI~1\LOCALS~1\Temp\RSP3E29.tmp"
 <h3>Output Window</h3>
 Compiling resources...
+Compiling...
+StdAfx.cpp
+Compiling...
+BlurJudge.cpp
+E:\codes\IPCStreamView\BlurJudge.cpp(165) : warning C4244: 'argument' : conversion from 'double' to 'int', possible loss of data
+E:\codes\IPCStreamView\BlurJudge.cpp(165) : warning C4244: 'argument' : conversion from 'double' to 'int', possible loss of data
+E:\codes\IPCStreamView\BlurJudge.cpp(165) : warning C4244: 'argument' : conversion from 'double' to 'int', possible loss of data
+E:\codes\IPCStreamView\BlurJudge.cpp(165) : warning C4244: 'argument' : conversion from 'double' to 'int', possible loss of data
+E:\codes\IPCStreamView\BlurJudge.cpp(144) : warning C4101: 'M' : unreferenced local variable
+E:\codes\IPCStreamView\BlurJudge.cpp(182) : warning C4101: 'R3' : unreferenced local variable
+ClientA.cpp
+Decoder.cpp
+FocusAssit.cpp
+font.cpp
+gfun.cpp
+h264decode.cpp
+icmpecho.cpp
+IPCStreamView.cpp
+IPCStreamViewDlg.cpp
+Preview.cpp
+ViewWnd.cpp
+tinystr.cpp
+tinyxml.cpp
+tinyxmlerror.cpp
+tinyxmlparser.cpp
+Generating Code...
 Linking...
-Creating temporary file "C:\DOCUME~1\ADMINI~1\LOCALS~1\Temp\RSP2C90.bat" with contents
+Creating temporary file "C:\DOCUME~1\ADMINI~1\LOCALS~1\Temp\RSP3E2B.tmp" with contents
 [
-@echo off
-editbin /SUBSYSTEM:CONSOLE .\Debug\IPCStreamView.exe
-]
-Creating command line "C:\DOCUME~1\ADMINI~1\LOCALS~1\Temp\RSP2C90.bat"
-
-Microsoft (R) COFF Binary File Editor Version 6.00.8168
-Copyright (C) Microsoft Corp 1992-1998. All rights reserved.
-
-
+/nologo /o"Debug/IPCStreamView.bsc" 
+.\Debug\StdAfx.sbr
+.\Debug\BlurJudge.sbr
+.\Debug\ClientA.sbr
+.\Debug\Decoder.sbr
+.\Debug\FocusAssit.sbr
+.\Debug\font.sbr
+.\Debug\gfun.sbr
+.\Debug\h264decode.sbr
+.\Debug\icmpecho.sbr
+.\Debug\IPCStreamView.sbr
+.\Debug\IPCStreamViewDlg.sbr
+.\Debug\Preview.sbr
+.\Debug\ViewWnd.sbr
+.\Debug\tinystr.sbr
+.\Debug\tinyxml.sbr
+.\Debug\tinyxmlerror.sbr
+.\Debug\tinyxmlparser.sbr]
+Creating command line "bscmake.exe @C:\DOCUME~1\ADMINI~1\LOCALS~1\Temp\RSP3E2B.tmp"
+Creating browse info file...
+<h3>Output Window</h3>
 
 
 
 <h3>Results</h3>
-IPCStreamView.exe - 0 error(s), 0 warning(s)
+IPCStreamView.exe - 0 error(s), 6 warning(s)
 </pre>
 </body>
 </html>

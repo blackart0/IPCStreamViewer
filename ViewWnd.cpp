@@ -12,6 +12,8 @@
 static char THIS_FILE[] = __FILE__;
 #endif
 
+CString szApp="IPC-ASSIST";
+CString szINI="C:\\Program Files\\AutoDVRTEST\\IPCStreamView\\conf.ini";
 char sz_DevIp[16]="192.168.1.22";
 unsigned i_Port=80;
 bool m_toggle=true;
